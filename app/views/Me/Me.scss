@@ -1,0 +1,11 @@
+:local(.me) {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  padding: 30px;
+}
+
+:local(.name) {
+  font-size: 20px;
+  text-align: center;
+}

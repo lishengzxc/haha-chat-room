@@ -1,0 +1,23 @@
+:local(.item) {
+  display: flex;
+  align-items: center;
+  height: 65px;
+  border-bottom: 1px solid #ccc;
+  padding: 10px 15px;
+  background-color: #fff;
+}
+
+:local(.a) {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+:local(.item) {
+  font-size: 24px;
+}
+
+:local(.content) {
+  font-size: 16px;
+  margin-left: 10px;
+}
