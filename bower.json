@@ -1,0 +1,19 @@
+{
+  "name": "haha-chat-room",
+  "version": "0.0.1",
+  "homepage": "https://github.com/lishengzxc/haha-chat-room",
+  "authors": [
+    "lishengzxc <eric@lishengcn.cn>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ratchet": "twbs/ratchet#~2.0.2"
+  }
+}
