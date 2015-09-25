@@ -30,12 +30,30 @@ var Store = assign({}, EventEmitter.prototype, {
 
   getAllRoomList: function () {
     return allRoomList;
+  },
+
+  getNowRoomList: function () {
+    return nowRoomList;
   }
 });
 
 AppDispatcher.register(function (action) {
   switch (action.actionType) {
 
+    case 'ADDROOM':
+      allRoomList = action.data;
+      Store.emitChange();
+      break;
+
+    case 'ENTERROOM':
+      var tmpList = nowRoomList.filter(function (result) {
+        return result.id !== action.data.id;
+      });
+      tmpList.push(action.data);
+      nowRoomList = tmpList;
+
+      Store.emitChange();
+      break;
   }
 });
 

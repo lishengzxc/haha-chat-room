@@ -50,13 +50,18 @@
 	var Router = __webpack_require__(157);
 	var routes = __webpack_require__(196);
 
-	var addRoom = __webpack_require__(381);
+	var Store = __webpack_require__(214);
+
+	var addRoom = __webpack_require__(240);
 
 	Router.run(routes, Router.HashLocation, function (Root) {
 	  React.render(React.createElement(Root, null), document.body);
 	});
 
-	socket.on('addRoomOK', function (data) {});
+	socket.on('addRoomOK', function (data) {
+	  addRoom.emitAddRoom(data);
+	  console.log(Store.getAllRoomList());
+	});
 
 /***/ },
 /* 1 */
@@ -23558,9 +23563,9 @@
 
 	var App = __webpack_require__(197);
 	var NowRoom = __webpack_require__(211);
-	var AllRoom = __webpack_require__(218);
-	var Me = __webpack_require__(221);
-	var ChatRoom = __webpack_require__(224);
+	var AllRoom = __webpack_require__(225);
+	var Me = __webpack_require__(228);
+	var ChatRoom = __webpack_require__(234);
 
 	var routes = React.createElement(
 	  Route,
@@ -24230,16 +24235,44 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(212);
 
-	var RoomItem = __webpack_require__(214);
+	var Store = __webpack_require__(214);
+
+	var getNowRoom = function getNowRoom() {
+	  return Store.getNowRoomList();
+	};
+
+	var RoomItem = __webpack_require__(220);
 
 	var NowRoom = React.createClass({
 	  displayName: 'NowRoom',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      nowRoomList: getNowRoom()
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onAddRoom);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onAddRoom);
+	  },
+
+	  onAddRoom: function onAddRoom() {
+	    this.setState({
+	      nowRoomList: getNowRoom()
+	    });
+	  },
 
 	  render: function render() {
 	    return React.createElement(
 	      'ul',
 	      null,
-	      React.createElement(RoomItem, null)
+	      this.state.nowRoomList.map(function (result, index) {
+	        return React.createElement(RoomItem, { key: index, name: result.name, id: result.id });
+	      })
 	    );
 	  }
 	});
@@ -24292,638 +24325,81 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(215);
+	var AppDispatcher = __webpack_require__(215);
+	var EventEmitter = __webpack_require__(219).EventEmitter;
 
-	var colors = __webpack_require__(217);
+	function assign(target) {
+	  for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	    sources[_key - 1] = arguments[_key];
+	  }
 
-	var RoomItem = React.createClass({
-	  displayName: 'RoomItem',
+	  sources.forEach(function (source) {
+	    Object.defineProperties(target, Object.keys(source).reduce(function (descriptors, key) {
+	      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+	      return descriptors;
+	    }, {}));
+	  });
+	  return target;
+	}
 
-	  render: function render() {
-	    return React.createElement(
-	      'li',
-	      { className: styles.item },
-	      React.createElement(
-	        'a',
-	        { className: styles.a, href: '#/chat' },
-	        React.createElement('i', { className: styles.icon + " fa fa-users", style: { color: colors.get() } }),
-	        React.createElement(
-	          'div',
-	          { className: styles.content },
-	          React.createElement(
-	            'p',
-	            { className: 'name' },
-	            '哈哈的房间'
-	          )
-	        )
-	      )
-	    );
+	var nowRoomList = [];
+	var allRoomList = [];
+
+	var Store = assign({}, EventEmitter.prototype, {
+	  emitChange: function emitChange() {
+	    this.emit('change');
+	  },
+
+	  addChangeListener: function addChangeListener(callback) {
+	    this.on('change', callback);
+	  },
+
+	  removeChangeListener: function removeChangeListener(callback) {
+	    this.removeListener('change', callback);
+	  },
+
+	  getAllRoomList: function getAllRoomList() {
+	    return allRoomList;
+	  },
+
+	  getNowRoomList: function getNowRoomList() {
+	    return nowRoomList;
 	  }
 	});
 
-	module.exports = RoomItem;
+	AppDispatcher.register(function (action) {
+	  switch (action.actionType) {
+
+	    case 'ADDROOM':
+	      allRoomList = action.data;
+	      Store.emitChange();
+	      break;
+
+	    case 'ENTERROOM':
+	      var tmpList = nowRoomList.filter(function (result) {
+	        return result.id !== action.data.id;
+	      });
+	      tmpList.push(action.data);
+	      nowRoomList = tmpList;
+
+	      Store.emitChange();
+	      break;
+	  }
+	});
+
+	module.exports = Store;
 
 /***/ },
 /* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(216);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 216 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._1xCm8TYwht21XQ2ARvkot5 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  height: 65px;\n  border-bottom: 1px solid #ccc;\n  padding: 10px 15px;\n  background-color: #fff; }\n\n._1BWKJ9XF1bGpIPW8lWT6t8 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1; }\n\n._1xCm8TYwht21XQ2ARvkot5 {\n  font-size: 24px; }\n\n._26dOgw_MuCJVcSLmL9rir0 {\n  font-size: 16px;\n  margin-left: 10px; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"item": "_1xCm8TYwht21XQ2ARvkot5",
-		"a": "_1BWKJ9XF1bGpIPW8lWT6t8",
-		"content": "_26dOgw_MuCJVcSLmL9rir0"
-	};
-
-/***/ },
-/* 217 */
-/***/ function(module, exports) {
-
 	'use strict';
 
-	var colors = (function () {
-
-	  var beforeIndex = 0;
-	  var index;
-
-	  var colorsList = ['001f3f', '0074d9', '7fdbff', '39cccc', '3d9970', '2ecc40', '01ff70', 'ffdc00', 'ff851b', 'ff4136', '85144b', 'f012be', 'b10dc9', '111111', 'aaaaaa', 'dddddd'];
-
-	  var randomIndex = function randomIndex() {
-	    return Math.random() * 15 | 0;
-	  };
-
-	  var getRandomColor = function getRandomColor() {
-	    index = randomIndex();
-	    if (index !== beforeIndex) {
-	      beforeIndex = index;
-	      return '#' + colorsList[index];
-	    } else {
-	      getRandomColor();
-	    }
-	  };
-
-	  return {
-	    get: getRandomColor
-	  };
-	})();
-
-	module.exports = colors;
-
-/***/ },
-/* 218 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(219);
-
-	var RoomItem = __webpack_require__(214);
-
-	var AllRoom = React.createClass({
-	  displayName: 'AllRoom',
-
-	  render: function render() {
-	    return React.createElement('ul', null);
-	  }
-	});
-
-	module.exports = AllRoom;
-
-/***/ },
-/* 219 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(220);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 220 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "", ""]);
-
-	// exports
-
-
-/***/ },
-/* 221 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(222);
-
-	var Me = React.createClass({
-	  displayName: 'Me',
-
-	  render: function render() {
-	    return React.createElement(
-	      'div',
-	      { className: styles.me },
-	      React.createElement('img', { src: 'img/avatar1.svg' }),
-	      React.createElement(
-	        'p',
-	        { className: styles.name },
-	        '2333'
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Me;
-
-/***/ },
-/* 222 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(223);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 223 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"me": "_1vpdxiIKre-pXRwx8LVtQC",
-		"name": "goZ0uzJ4MMuyw0_65xoZa"
-	};
-
-/***/ },
-/* 224 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(225);
-
-	var MessageItem = __webpack_require__(227);
-
-	var ChatRoom = React.createClass({
-	  displayName: 'ChatRoom',
-
-	  getInitialState: function getInitialState() {
-	    return {
-	      messages: []
-	    };
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    //setInterval(this.receive, 1000);
-	  },
-
-	  submit: function submit(event) {
-	    event.preventDefault();
-	    var message = this.refs.message.getDOMNode().value;
-	    if (!message) return;
-
-	    var messages = this.state.messages;
-	    messages.push({ rs: 'send', content: message, avatar: 1 });
-
-	    this.setState({
-	      messages: messages
-	    }, this.scroll);
-
-	    this.refs.message.getDOMNode().value = '';
-	  },
-
-	  receive: function receive() {
-	    if (Math.random() > 0.5) {
-	      var messages = this.state.messages;
-	      messages.push({ rs: 'receive', content: "你好" + new Date().getTime(), avatar: 2 });
-
-	      this.setState({
-	        messages: messages
-	      }, this.scroll);
-	    }
-	  },
-
-	  scroll: function scroll() {
-
-	    var lists = this.refs.ul.getDOMNode().children;
-	    lists[lists.length - 1].scrollIntoView();
-	  },
-
-	  render: function render() {
-	    var messages = this.state.messages;
-
-	    return React.createElement(
-	      'div',
-	      { className: styles.chatroom },
-	      React.createElement(
-	        'ul',
-	        { className: styles.chatlist, ref: 'ul' },
-	        messages.map(function (result, index) {
-	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.avatar, key: index });
-	        })
-	      ),
-	      React.createElement(
-	        'form',
-	        { className: styles.inputgroup, onSubmit: this.submit },
-	        React.createElement('input', { className: styles.input, type: 'text', ref: 'message' }),
-	        React.createElement(
-	          'button',
-	          { className: styles.submit, type: 'submit' },
-	          React.createElement('i', { className: 'fa fa-paper-plane' })
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = ChatRoom;
-
-/***/ },
-/* 225 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(226);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 226 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, ".YiqYbIOSLw74YylUgD8cu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  position: fixed;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 5px;\n  min-height: 45px;\n  border-top: 1px solid #ccc;\n  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f9f9f9), to(#e0e0e0));\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.12); }\n\n._2osyOb1Z6qdhL8fv7YHZji {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1;\n  padding-left: 5px;\n  margin-right: 5px;\n  border-radius: 3px;\n  border: 1px solid #ccc; }\n\n.YyotYJ5IghhcUHSPkDHO8 {\n  width: 60px;\n  border: none;\n  background-color: #18b4ed;\n  color: #fff;\n  border-radius: 3px; }\n\n.dQ_Nam8yzKzSnWvkONE2G {\n  padding: 10px; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"inputgroup": "YiqYbIOSLw74YylUgD8cu",
-		"input": "_2osyOb1Z6qdhL8fv7YHZji",
-		"submit": "YyotYJ5IghhcUHSPkDHO8",
-		"chatlist": "dQ_Nam8yzKzSnWvkONE2G"
-	};
-
-/***/ },
-/* 227 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(228);
-
-	var MessageItem = React.createClass({
-	  displayName: 'MessageItem',
-
-	  render: function render() {
-	    var rs = this.props.rs;
-	    var content = this.props.content;
-	    var avatar = this.props.avatar;
-
-	    return React.createElement(
-	      'li',
-	      { className: styles[rs] },
-	      React.createElement('img', { className: styles.avatar, src: "img/avatar" + avatar + ".svg" }),
-	      React.createElement(
-	        'p',
-	        { className: styles.content },
-	        content
-	      )
-	    );
-	  }
-	});
-
-	module.exports = MessageItem;
-
-/***/ },
-/* 228 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(229);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 229 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._16-k8Xcb21zA5m33eHZLBu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex; }\n\n._3fI-71l4AqWr_6NIDGJRyd {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse; }\n\n._1e_0XZdHJ3bhBscXN5Okwx {\n  width: 35px;\n  height: 35px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0; }\n\n._3pwXoj9L13GPfKoncM_Kvb {\n  margin: 16px 5px;\n  padding: 10px;\n  border-radius: 6px;\n  word-break: break-word; }\n\n._16-k8Xcb21zA5m33eHZLBu ._3pwXoj9L13GPfKoncM_Kvb {\n  border: 1px solid #ccc; }\n\n._3fI-71l4AqWr_6NIDGJRyd ._3pwXoj9L13GPfKoncM_Kvb {\n  color: #fff;\n  background-color: #18b4ed;\n  border: 1px solid #18b4ed; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"receive": "_16-k8Xcb21zA5m33eHZLBu",
-		"send": "_3fI-71l4AqWr_6NIDGJRyd",
-		"avatar": "_1e_0XZdHJ3bhBscXN5Okwx",
-		"content": "_3pwXoj9L13GPfKoncM_Kvb"
-	};
-
-/***/ },
-/* 230 */,
-/* 231 */,
-/* 232 */,
-/* 233 */,
-/* 234 */,
-/* 235 */,
-/* 236 */,
-/* 237 */,
-/* 238 */,
-/* 239 */,
-/* 240 */,
-/* 241 */,
-/* 242 */,
-/* 243 */,
-/* 244 */,
-/* 245 */,
-/* 246 */,
-/* 247 */,
-/* 248 */,
-/* 249 */,
-/* 250 */,
-/* 251 */,
-/* 252 */,
-/* 253 */,
-/* 254 */,
-/* 255 */,
-/* 256 */,
-/* 257 */,
-/* 258 */,
-/* 259 */,
-/* 260 */,
-/* 261 */,
-/* 262 */,
-/* 263 */,
-/* 264 */,
-/* 265 */,
-/* 266 */,
-/* 267 */,
-/* 268 */,
-/* 269 */,
-/* 270 */,
-/* 271 */,
-/* 272 */,
-/* 273 */,
-/* 274 */,
-/* 275 */,
-/* 276 */,
-/* 277 */,
-/* 278 */,
-/* 279 */,
-/* 280 */,
-/* 281 */,
-/* 282 */,
-/* 283 */,
-/* 284 */,
-/* 285 */,
-/* 286 */,
-/* 287 */,
-/* 288 */,
-/* 289 */,
-/* 290 */,
-/* 291 */,
-/* 292 */,
-/* 293 */,
-/* 294 */,
-/* 295 */,
-/* 296 */,
-/* 297 */,
-/* 298 */,
-/* 299 */,
-/* 300 */,
-/* 301 */,
-/* 302 */,
-/* 303 */,
-/* 304 */,
-/* 305 */,
-/* 306 */,
-/* 307 */,
-/* 308 */,
-/* 309 */,
-/* 310 */,
-/* 311 */,
-/* 312 */,
-/* 313 */,
-/* 314 */,
-/* 315 */,
-/* 316 */,
-/* 317 */,
-/* 318 */,
-/* 319 */,
-/* 320 */,
-/* 321 */,
-/* 322 */,
-/* 323 */,
-/* 324 */,
-/* 325 */,
-/* 326 */,
-/* 327 */,
-/* 328 */,
-/* 329 */,
-/* 330 */,
-/* 331 */,
-/* 332 */,
-/* 333 */,
-/* 334 */,
-/* 335 */,
-/* 336 */,
-/* 337 */,
-/* 338 */,
-/* 339 */,
-/* 340 */,
-/* 341 */,
-/* 342 */,
-/* 343 */,
-/* 344 */,
-/* 345 */,
-/* 346 */,
-/* 347 */,
-/* 348 */,
-/* 349 */,
-/* 350 */,
-/* 351 */,
-/* 352 */,
-/* 353 */,
-/* 354 */,
-/* 355 */,
-/* 356 */,
-/* 357 */,
-/* 358 */,
-/* 359 */,
-/* 360 */,
-/* 361 */,
-/* 362 */,
-/* 363 */,
-/* 364 */,
-/* 365 */,
-/* 366 */,
-/* 367 */,
-/* 368 */,
-/* 369 */,
-/* 370 */,
-/* 371 */,
-/* 372 */,
-/* 373 */,
-/* 374 */,
-/* 375 */,
-/* 376 */,
-/* 377 */,
-/* 378 */,
-/* 379 */,
-/* 380 */,
-/* 381 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var AppDispatcher = __webpack_require__(382);
-
-	var addRoom = {
-	  emitAddRoom: function emitAddRoom(data) {
-	    var action = {
-	      actionType: "ADDROOM",
-	      data: data
-	    };
-
-	    AppDispatcher.dispatch(action);
-	  }
-	};
-
-	module.exports = addRoom;
-
-/***/ },
-/* 382 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var Dispatcher = __webpack_require__(383).Dispatcher;
+	var Dispatcher = __webpack_require__(216).Dispatcher;
 	module.exports = new Dispatcher();
 
 /***/ },
-/* 383 */
+/* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -24935,11 +24411,11 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 
-	module.exports.Dispatcher = __webpack_require__(384);
+	module.exports.Dispatcher = __webpack_require__(217);
 
 
 /***/ },
-/* 384 */
+/* 217 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -24961,7 +24437,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var invariant = __webpack_require__(385);
+	var invariant = __webpack_require__(218);
 
 	var _prefix = 'ID_';
 
@@ -25176,7 +24652,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 385 */
+/* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -25229,6 +24705,1037 @@
 
 	module.exports = invariant;
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+
+/***/ },
+/* 219 */
+/***/ function(module, exports) {
+
+	// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+	function EventEmitter() {
+	  this._events = this._events || {};
+	  this._maxListeners = this._maxListeners || undefined;
+	}
+	module.exports = EventEmitter;
+
+	// Backwards-compat with node 0.10.x
+	EventEmitter.EventEmitter = EventEmitter;
+
+	EventEmitter.prototype._events = undefined;
+	EventEmitter.prototype._maxListeners = undefined;
+
+	// By default EventEmitters will print a warning if more than 10 listeners are
+	// added to it. This is a useful default which helps finding memory leaks.
+	EventEmitter.defaultMaxListeners = 10;
+
+	// Obviously not all Emitters should be limited to 10. This function allows
+	// that to be increased. Set to zero for unlimited.
+	EventEmitter.prototype.setMaxListeners = function(n) {
+	  if (!isNumber(n) || n < 0 || isNaN(n))
+	    throw TypeError('n must be a positive number');
+	  this._maxListeners = n;
+	  return this;
+	};
+
+	EventEmitter.prototype.emit = function(type) {
+	  var er, handler, len, args, i, listeners;
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // If there is no 'error' event listener then throw.
+	  if (type === 'error') {
+	    if (!this._events.error ||
+	        (isObject(this._events.error) && !this._events.error.length)) {
+	      er = arguments[1];
+	      if (er instanceof Error) {
+	        throw er; // Unhandled 'error' event
+	      }
+	      throw TypeError('Uncaught, unspecified "error" event.');
+	    }
+	  }
+
+	  handler = this._events[type];
+
+	  if (isUndefined(handler))
+	    return false;
+
+	  if (isFunction(handler)) {
+	    switch (arguments.length) {
+	      // fast cases
+	      case 1:
+	        handler.call(this);
+	        break;
+	      case 2:
+	        handler.call(this, arguments[1]);
+	        break;
+	      case 3:
+	        handler.call(this, arguments[1], arguments[2]);
+	        break;
+	      // slower
+	      default:
+	        len = arguments.length;
+	        args = new Array(len - 1);
+	        for (i = 1; i < len; i++)
+	          args[i - 1] = arguments[i];
+	        handler.apply(this, args);
+	    }
+	  } else if (isObject(handler)) {
+	    len = arguments.length;
+	    args = new Array(len - 1);
+	    for (i = 1; i < len; i++)
+	      args[i - 1] = arguments[i];
+
+	    listeners = handler.slice();
+	    len = listeners.length;
+	    for (i = 0; i < len; i++)
+	      listeners[i].apply(this, args);
+	  }
+
+	  return true;
+	};
+
+	EventEmitter.prototype.addListener = function(type, listener) {
+	  var m;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events)
+	    this._events = {};
+
+	  // To avoid recursion in the case that type === "newListener"! Before
+	  // adding it to the listeners, first emit "newListener".
+	  if (this._events.newListener)
+	    this.emit('newListener', type,
+	              isFunction(listener.listener) ?
+	              listener.listener : listener);
+
+	  if (!this._events[type])
+	    // Optimize the case of one listener. Don't need the extra array object.
+	    this._events[type] = listener;
+	  else if (isObject(this._events[type]))
+	    // If we've already got an array, just append.
+	    this._events[type].push(listener);
+	  else
+	    // Adding the second element, need to change to array.
+	    this._events[type] = [this._events[type], listener];
+
+	  // Check for listener leak
+	  if (isObject(this._events[type]) && !this._events[type].warned) {
+	    var m;
+	    if (!isUndefined(this._maxListeners)) {
+	      m = this._maxListeners;
+	    } else {
+	      m = EventEmitter.defaultMaxListeners;
+	    }
+
+	    if (m && m > 0 && this._events[type].length > m) {
+	      this._events[type].warned = true;
+	      console.error('(node) warning: possible EventEmitter memory ' +
+	                    'leak detected. %d listeners added. ' +
+	                    'Use emitter.setMaxListeners() to increase limit.',
+	                    this._events[type].length);
+	      if (typeof console.trace === 'function') {
+	        // not supported in IE 10
+	        console.trace();
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.on = EventEmitter.prototype.addListener;
+
+	EventEmitter.prototype.once = function(type, listener) {
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  var fired = false;
+
+	  function g() {
+	    this.removeListener(type, g);
+
+	    if (!fired) {
+	      fired = true;
+	      listener.apply(this, arguments);
+	    }
+	  }
+
+	  g.listener = listener;
+	  this.on(type, g);
+
+	  return this;
+	};
+
+	// emits a 'removeListener' event iff the listener was removed
+	EventEmitter.prototype.removeListener = function(type, listener) {
+	  var list, position, length, i;
+
+	  if (!isFunction(listener))
+	    throw TypeError('listener must be a function');
+
+	  if (!this._events || !this._events[type])
+	    return this;
+
+	  list = this._events[type];
+	  length = list.length;
+	  position = -1;
+
+	  if (list === listener ||
+	      (isFunction(list.listener) && list.listener === listener)) {
+	    delete this._events[type];
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+
+	  } else if (isObject(list)) {
+	    for (i = length; i-- > 0;) {
+	      if (list[i] === listener ||
+	          (list[i].listener && list[i].listener === listener)) {
+	        position = i;
+	        break;
+	      }
+	    }
+
+	    if (position < 0)
+	      return this;
+
+	    if (list.length === 1) {
+	      list.length = 0;
+	      delete this._events[type];
+	    } else {
+	      list.splice(position, 1);
+	    }
+
+	    if (this._events.removeListener)
+	      this.emit('removeListener', type, listener);
+	  }
+
+	  return this;
+	};
+
+	EventEmitter.prototype.removeAllListeners = function(type) {
+	  var key, listeners;
+
+	  if (!this._events)
+	    return this;
+
+	  // not listening for removeListener, no need to emit
+	  if (!this._events.removeListener) {
+	    if (arguments.length === 0)
+	      this._events = {};
+	    else if (this._events[type])
+	      delete this._events[type];
+	    return this;
+	  }
+
+	  // emit removeListener for all listeners on all events
+	  if (arguments.length === 0) {
+	    for (key in this._events) {
+	      if (key === 'removeListener') continue;
+	      this.removeAllListeners(key);
+	    }
+	    this.removeAllListeners('removeListener');
+	    this._events = {};
+	    return this;
+	  }
+
+	  listeners = this._events[type];
+
+	  if (isFunction(listeners)) {
+	    this.removeListener(type, listeners);
+	  } else {
+	    // LIFO order
+	    while (listeners.length)
+	      this.removeListener(type, listeners[listeners.length - 1]);
+	  }
+	  delete this._events[type];
+
+	  return this;
+	};
+
+	EventEmitter.prototype.listeners = function(type) {
+	  var ret;
+	  if (!this._events || !this._events[type])
+	    ret = [];
+	  else if (isFunction(this._events[type]))
+	    ret = [this._events[type]];
+	  else
+	    ret = this._events[type].slice();
+	  return ret;
+	};
+
+	EventEmitter.listenerCount = function(emitter, type) {
+	  var ret;
+	  if (!emitter._events || !emitter._events[type])
+	    ret = 0;
+	  else if (isFunction(emitter._events[type]))
+	    ret = 1;
+	  else
+	    ret = emitter._events[type].length;
+	  return ret;
+	};
+
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+
+
+/***/ },
+/* 220 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(221);
+
+	var colors = __webpack_require__(223);
+
+	var enterRoom = __webpack_require__(224);
+
+	var RoomItem = React.createClass({
+	  displayName: 'RoomItem',
+
+	  chooseRoom: function chooseRoom(event) {
+	    if (window.location.hash.substr(2) === 'all') {
+	      if (confirm('确认要进入这个房间吗？')) {
+	        console.log(this.props);
+	        enterRoom.emitEnterRoom(this.props);
+	      } else {
+	        return event.preventDefault();
+	      }
+	    }
+	    nowRoomId = this.props.id;
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'li',
+	      { className: styles.item },
+	      React.createElement(
+	        'a',
+	        { className: styles.a, href: '#/chat', onClick: this.chooseRoom },
+	        React.createElement('i', { className: styles.icon + " fa fa-users", style: { color: colors.get() } }),
+	        React.createElement(
+	          'div',
+	          { className: styles.content },
+	          React.createElement(
+	            'p',
+	            { className: 'name' },
+	            this.props.name,
+	            React.createElement(
+	              'small',
+	              { className: styles.small },
+	              this.props.id
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = RoomItem;
+
+/***/ },
+/* 221 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(222);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 222 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1xCm8TYwht21XQ2ARvkot5 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  height: 65px;\n  border-bottom: 1px solid #ccc;\n  padding: 10px 15px;\n  background-color: #fff; }\n\n._1BWKJ9XF1bGpIPW8lWT6t8 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1; }\n\n._1xCm8TYwht21XQ2ARvkot5 {\n  font-size: 24px; }\n\n._26dOgw_MuCJVcSLmL9rir0 {\n  font-size: 16px;\n  margin-left: 10px; }\n\n._3k_zbmhwAdWhapjmdh3dEv {\n  margin-left: 5px;\n  font-size: 12px; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"item": "_1xCm8TYwht21XQ2ARvkot5",
+		"a": "_1BWKJ9XF1bGpIPW8lWT6t8",
+		"content": "_26dOgw_MuCJVcSLmL9rir0",
+		"small": "_3k_zbmhwAdWhapjmdh3dEv"
+	};
+
+/***/ },
+/* 223 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var colors = (function () {
+
+	  var beforeIndex = 0;
+	  var index;
+
+	  var colorsList = ['001f3f', '0074d9', '7fdbff', '39cccc', '3d9970', '2ecc40', '01ff70', 'ffdc00', 'ff851b', 'ff4136', '85144b', 'f012be', 'b10dc9', '111111', 'aaaaaa', 'dddddd'];
+
+	  var randomIndex = function randomIndex() {
+	    return Math.random() * 15 | 0;
+	  };
+
+	  var getRandomColor = function getRandomColor() {
+	    index = randomIndex();
+	    if (index !== beforeIndex) {
+	      beforeIndex = index;
+	      return '#' + colorsList[index];
+	    } else {
+	      getRandomColor();
+	    }
+	  };
+
+	  return {
+	    get: getRandomColor
+	  };
+	})();
+
+	module.exports = colors;
+
+/***/ },
+/* 224 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(215);
+
+	var enterRoom = {
+	  emitEnterRoom: function emitEnterRoom(data) {
+	    var action = {
+	      actionType: "ENTERROOM",
+	      data: data
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = enterRoom;
+
+/***/ },
+/* 225 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(226);
+
+	var Store = __webpack_require__(214);
+
+	var getAllRoom = function getAllRoom() {
+	  return Store.getAllRoomList();
+	};
+
+	var RoomItem = __webpack_require__(220);
+
+	var AllRoom = React.createClass({
+	  displayName: 'AllRoom',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      allRoomList: getAllRoom()
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onAddRoom);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onAddRoom);
+	  },
+
+	  onAddRoom: function onAddRoom() {
+	    this.setState({
+	      allRoomList: getAllRoom()
+	    });
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'ul',
+	      null,
+	      this.state.allRoomList.map(function (result, index) {
+	        return React.createElement(RoomItem, { key: index, name: result.name, id: result.id });
+	      })
+	    );
+	  }
+	});
+
+	module.exports = AllRoom;
+
+/***/ },
+/* 226 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(227);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "", ""]);
+
+	// exports
+
+
+/***/ },
+/* 228 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(229);
+
+	var SexSwitch = __webpack_require__(241);
+
+	var Me = React.createClass({
+	  displayName: 'Me',
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: styles.me },
+	      React.createElement('img', { src: 'img/avatar1.svg' }),
+	      React.createElement(
+	        'p',
+	        { className: styles.name },
+	        '2333'
+	      ),
+	      React.createElement(SexSwitch, null)
+	    );
+	  }
+	});
+
+	module.exports = Me;
+
+/***/ },
+/* 229 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(230);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 230 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px 20px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"me": "_1vpdxiIKre-pXRwx8LVtQC",
+		"name": "goZ0uzJ4MMuyw0_65xoZa"
+	};
+
+/***/ },
+/* 231 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(232);
+
+	var Switch = React.createClass({
+	  displayName: 'Switch',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      check: false
+	    };
+	  },
+
+	  onChange: function onChange() {
+	    this.setState({
+	      check: !this.state.check
+	    });
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'label',
+	      { className: styles['switch'] },
+	      React.createElement('input', { className: styles.checkbox, type: 'checkbox', checked: this.state.check, onChange: this.onChange })
+	    );
+	  }
+	});
+
+	module.exports = Switch;
+
+/***/ },
+/* 232 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(233);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Switch.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Switch.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 233 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._32bzORUd3J7h_K9TUCc9U5 {\n  display: block;\n  height: 38px; }\n\n._1patylT3psoHux8fGTDiXx {\n  width: 52px;\n  height: 32px;\n  position: absolute;\n  right: 0;\n  z-index: 2;\n  border: 0;\n  background: 0 0;\n  -webkit-appearance: none;\n  outline: 0; }\n  ._1patylT3psoHux8fGTDiXx::before {\n    content: '';\n    width: 50px;\n    height: 30px;\n    border: 1px solid #18b4ed;\n    background-color: #18b4ed;\n    border-radius: 20px;\n    cursor: pointer;\n    display: inline-block;\n    position: relative;\n    vertical-align: middle;\n    box-sizing: content-box;\n    box-shadow: #18b4ed 0 0 0 0 inset;\n    -webkit-background-clip: content-box; }\n  ._1patylT3psoHux8fGTDiXx::after {\n    content: '';\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    top: 1px;\n    left: 0;\n    border-radius: 100%;\n    background-color: #fff;\n    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n    -webkit-transition: left 0.2s;\n            transition: left 0.2s; }\n  ._1patylT3psoHux8fGTDiXx:checked::before {\n    border-color: #F3A2CB;\n    box-shadow: #F3A2CB 0 0 0 16px inset;\n    background-color: #F3A2CB; }\n  ._1patylT3psoHux8fGTDiXx:checked::after {\n    left: 21px; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"switch": "_32bzORUd3J7h_K9TUCc9U5",
+		"checkbox": "_1patylT3psoHux8fGTDiXx"
+	};
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(235);
+
+	var MessageItem = __webpack_require__(237);
+
+	var ChatRoom = React.createClass({
+	  displayName: 'ChatRoom',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      messages: []
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    var that = this;
+	    socket.on('receiveMessage:' + nowRoomId, function (data) {
+	      var message = data.message;
+	      var messages = that.state.messages;
+	      messages.push({
+	        rs: 'receive',
+	        content: message,
+	        avatar: 2
+	      });
+
+	      that.setState({
+	        messages: messages
+	      }, that.scroll);
+	    });
+	  },
+
+	  submit: function submit(event) {
+	    event.preventDefault();
+	    var message = this.refs.message.getDOMNode().value;
+	    if (!message) return;
+
+	    var messages = this.state.messages;
+	    messages.push({
+	      rs: 'send',
+	      content: message,
+	      avatar: 1
+	    });
+
+	    this.setState({
+	      messages: messages
+	    }, this.scroll);
+
+	    socket.emit('sendMessage', { message: message, id: nowRoomId });
+
+	    this.refs.message.getDOMNode().value = '';
+	  },
+
+	  receive: function receive() {
+	    if (Math.random() > 0.5) {
+	      var messages = this.state.messages;
+	      messages.push({ rs: 'receive', content: "你好" + new Date().getTime(), avatar: 2 });
+
+	      this.setState({
+	        messages: messages
+	      }, this.scroll);
+	    }
+	  },
+
+	  scroll: function scroll() {
+
+	    var lists = this.refs.ul.getDOMNode().children;
+	    lists[lists.length - 1].scrollIntoView();
+	  },
+
+	  render: function render() {
+	    var messages = this.state.messages;
+
+	    return React.createElement(
+	      'div',
+	      { className: styles.chatroom },
+	      React.createElement(
+	        'ul',
+	        { className: styles.chatlist, ref: 'ul' },
+	        messages.map(function (result, index) {
+	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.avatar, key: index });
+	        })
+	      ),
+	      React.createElement(
+	        'form',
+	        { className: styles.inputgroup, onSubmit: this.submit },
+	        React.createElement('input', { className: styles.input, type: 'text', ref: 'message' }),
+	        React.createElement(
+	          'button',
+	          { className: styles.submit, type: 'submit' },
+	          React.createElement('i', { className: 'fa fa-paper-plane' })
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = ChatRoom;
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(236);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 236 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".YiqYbIOSLw74YylUgD8cu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  position: fixed;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 5px;\n  min-height: 45px;\n  border-top: 1px solid #ccc;\n  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f9f9f9), to(#e0e0e0));\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.12); }\n\n._2osyOb1Z6qdhL8fv7YHZji {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1;\n  padding-left: 5px;\n  margin-right: 5px;\n  border-radius: 3px;\n  border: 1px solid #ccc; }\n\n.YyotYJ5IghhcUHSPkDHO8 {\n  width: 60px;\n  border: none;\n  background-color: #18b4ed;\n  color: #fff;\n  border-radius: 3px; }\n\n.dQ_Nam8yzKzSnWvkONE2G {\n  padding: 10px; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"inputgroup": "YiqYbIOSLw74YylUgD8cu",
+		"input": "_2osyOb1Z6qdhL8fv7YHZji",
+		"submit": "YyotYJ5IghhcUHSPkDHO8",
+		"chatlist": "dQ_Nam8yzKzSnWvkONE2G"
+	};
+
+/***/ },
+/* 237 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(238);
+
+	var MessageItem = React.createClass({
+	  displayName: 'MessageItem',
+
+	  render: function render() {
+	    var rs = this.props.rs;
+	    var content = this.props.content;
+	    var avatar = this.props.avatar;
+
+	    return React.createElement(
+	      'li',
+	      { className: styles[rs] },
+	      React.createElement('img', { className: styles.avatar, src: "img/avatar" + avatar + ".svg" }),
+	      React.createElement(
+	        'p',
+	        { className: styles.content },
+	        content
+	      )
+	    );
+	  }
+	});
+
+	module.exports = MessageItem;
+
+/***/ },
+/* 238 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(239);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 239 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._16-k8Xcb21zA5m33eHZLBu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex; }\n\n._3fI-71l4AqWr_6NIDGJRyd {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse; }\n\n._1e_0XZdHJ3bhBscXN5Okwx {\n  width: 35px;\n  height: 35px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0; }\n\n._3pwXoj9L13GPfKoncM_Kvb {\n  margin: 16px 5px;\n  padding: 10px;\n  border-radius: 6px;\n  word-break: break-word; }\n\n._16-k8Xcb21zA5m33eHZLBu ._3pwXoj9L13GPfKoncM_Kvb {\n  border: 1px solid #ccc; }\n\n._3fI-71l4AqWr_6NIDGJRyd ._3pwXoj9L13GPfKoncM_Kvb {\n  color: #fff;\n  background-color: #18b4ed;\n  border: 1px solid #18b4ed; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"receive": "_16-k8Xcb21zA5m33eHZLBu",
+		"send": "_3fI-71l4AqWr_6NIDGJRyd",
+		"avatar": "_1e_0XZdHJ3bhBscXN5Okwx",
+		"content": "_3pwXoj9L13GPfKoncM_Kvb"
+	};
+
+/***/ },
+/* 240 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(215);
+
+	var addRoom = {
+	  emitAddRoom: function emitAddRoom(data) {
+	    var action = {
+	      actionType: "ADDROOM",
+	      data: data
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = addRoom;
+
+/***/ },
+/* 241 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(242);
+
+	var Switch = __webpack_require__(231);
+
+	var SexSwitch = React.createClass({
+	  displayName: 'SexSwitch',
+
+	  getSex: function getSex() {},
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: styles.sex, onClick: this.getSex },
+	      React.createElement(
+	        'p',
+	        { className: styles.content },
+	        '男生'
+	      ),
+	      React.createElement(Switch, { ref: 'switch' })
+	    );
+	  }
+	});
+
+	module.exports = SexSwitch;
+
+/***/ },
+/* 242 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(243);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1zcZDKZ_EyV1IC29aYMLHN {\n  position: relative;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse;\n  width: 100%;\n  height: 38px;\n  cursor: pointer; }\n\n._2w5CfeBrmkvnUWJiT0CyJc {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n      -ms-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  margin: 0; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"sex": "_1zcZDKZ_EyV1IC29aYMLHN",
+		"content": "_2w5CfeBrmkvnUWJiT0CyJc"
+	};
 
 /***/ }
 /******/ ]);

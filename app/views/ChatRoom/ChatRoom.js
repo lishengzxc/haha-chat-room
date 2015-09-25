@@ -12,7 +12,20 @@ var ChatRoom = React.createClass({
   },
 
   componentDidMount: function () {
-    //setInterval(this.receive, 1000);
+    var that = this;
+    socket.on('receiveMessage:' + nowRoomId, function (data) {
+      var message = data.message;
+      var messages = that.state.messages;
+      messages.push({
+        rs: 'receive',
+        content: message,
+        avatar: 2
+      });
+
+      that.setState({
+        messages: messages
+      }, that.scroll);
+    });
   },
 
   submit: function (event) {
@@ -21,11 +34,17 @@ var ChatRoom = React.createClass({
     if (!message) return;
 
     var messages = this.state.messages;
-    messages.push({rs: 'send', content: message, avatar: 1});
+    messages.push({
+      rs: 'send',
+      content: message,
+      avatar: 1
+    });
 
     this.setState({
       messages: messages
     }, this.scroll);
+
+    socket.emit('sendMessage', {message: message, id: nowRoomId});
 
     this.refs.message.getDOMNode().value = '';
 
