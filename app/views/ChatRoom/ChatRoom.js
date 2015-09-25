@@ -5,6 +5,8 @@ var MessageItem = require('../MessageItem/MessageItem');
 
 var ChatRoom = React.createClass({
 
+  time: new Date().getTime(),
+
   getInitialState: function () {
     return {
       messages: []
@@ -14,22 +16,29 @@ var ChatRoom = React.createClass({
   componentDidMount: function () {
     var that = this;
     socket.on('receiveMessage:' + nowRoomId, function (data) {
-      var message = data.message;
-      var messages = that.state.messages;
-      messages.push({
-        rs: 'receive',
-        content: message,
-        avatar: 2
-      });
+      if (that.time !== data.time) {
+        console.log(that.time, data.time);
+        var message = data.message;
+        var messages = that.state.messages;
+        messages.push({
+          rs: 'receive',
+          content: message,
+          avatar: 2
+        });
 
-      that.setState({
-        messages: messages
-      }, that.scroll);
+        that.setState({
+          messages: messages
+        }, that.scroll);
+      }
+
     });
   },
 
   submit: function (event) {
     event.preventDefault();
+
+    this.time = new Date().getTime();
+
     var message = this.refs.message.getDOMNode().value;
     if (!message) return;
 
@@ -44,7 +53,7 @@ var ChatRoom = React.createClass({
       messages: messages
     }, this.scroll);
 
-    socket.emit('sendMessage', {message: message, id: nowRoomId});
+    socket.emit('sendMessage', {message: message, id: nowRoomId, time: this.time});
 
     this.refs.message.getDOMNode().value = '';
 

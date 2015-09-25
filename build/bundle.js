@@ -52,7 +52,7 @@
 
 	var Store = __webpack_require__(214);
 
-	var addRoom = __webpack_require__(240);
+	var addRoom = __webpack_require__(243);
 
 	Router.run(routes, Router.HashLocation, function (Root) {
 	  React.render(React.createElement(Root, null), document.body);
@@ -23565,7 +23565,7 @@
 	var NowRoom = __webpack_require__(211);
 	var AllRoom = __webpack_require__(225);
 	var Me = __webpack_require__(228);
-	var ChatRoom = __webpack_require__(234);
+	var ChatRoom = __webpack_require__(237);
 
 	var routes = React.createElement(
 	  Route,
@@ -25272,7 +25272,7 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(229);
 
-	var SexSwitch = __webpack_require__(241);
+	var SexSwitch = __webpack_require__(231);
 
 	var Me = React.createClass({
 	  displayName: 'Me',
@@ -25346,6 +25346,81 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(232);
 
+	var Switch = __webpack_require__(234);
+
+	var SexSwitch = React.createClass({
+	  displayName: 'SexSwitch',
+
+	  getSex: function getSex() {},
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: styles.sex, onClick: this.getSex },
+	      React.createElement(
+	        'p',
+	        { className: styles.content },
+	        '男生'
+	      ),
+	      React.createElement(Switch, { ref: 'switch' })
+	    );
+	  }
+	});
+
+	module.exports = SexSwitch;
+
+/***/ },
+/* 232 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(233);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 233 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1zcZDKZ_EyV1IC29aYMLHN {\n  position: relative;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse;\n  width: 100%;\n  height: 38px;\n  cursor: pointer; }\n\n._2w5CfeBrmkvnUWJiT0CyJc {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n      -ms-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  margin: 0; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"sex": "_1zcZDKZ_EyV1IC29aYMLHN",
+		"content": "_2w5CfeBrmkvnUWJiT0CyJc"
+	};
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(235);
+
 	var Switch = React.createClass({
 	  displayName: 'Switch',
 
@@ -25373,13 +25448,13 @@
 	module.exports = Switch;
 
 /***/ },
-/* 232 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(233);
+	var content = __webpack_require__(236);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25399,7 +25474,7 @@
 	}
 
 /***/ },
-/* 233 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25416,18 +25491,20 @@
 	};
 
 /***/ },
-/* 234 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(235);
+	var styles = __webpack_require__(238);
 
-	var MessageItem = __webpack_require__(237);
+	var MessageItem = __webpack_require__(240);
 
 	var ChatRoom = React.createClass({
 	  displayName: 'ChatRoom',
+
+	  time: new Date().getTime(),
 
 	  getInitialState: function getInitialState() {
 	    return {
@@ -25438,22 +25515,28 @@
 	  componentDidMount: function componentDidMount() {
 	    var that = this;
 	    socket.on('receiveMessage:' + nowRoomId, function (data) {
-	      var message = data.message;
-	      var messages = that.state.messages;
-	      messages.push({
-	        rs: 'receive',
-	        content: message,
-	        avatar: 2
-	      });
+	      if (that.time !== data.time) {
+	        console.log(that.time, data.time);
+	        var message = data.message;
+	        var messages = that.state.messages;
+	        messages.push({
+	          rs: 'receive',
+	          content: message,
+	          avatar: 2
+	        });
 
-	      that.setState({
-	        messages: messages
-	      }, that.scroll);
+	        that.setState({
+	          messages: messages
+	        }, that.scroll);
+	      }
 	    });
 	  },
 
 	  submit: function submit(event) {
 	    event.preventDefault();
+
+	    this.time = new Date().getTime();
+
 	    var message = this.refs.message.getDOMNode().value;
 	    if (!message) return;
 
@@ -25468,7 +25551,7 @@
 	      messages: messages
 	    }, this.scroll);
 
-	    socket.emit('sendMessage', { message: message, id: nowRoomId });
+	    socket.emit('sendMessage', { message: message, id: nowRoomId, time: this.time });
 
 	    this.refs.message.getDOMNode().value = '';
 	  },
@@ -25520,13 +25603,13 @@
 	module.exports = ChatRoom;
 
 /***/ },
-/* 235 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(236);
+	var content = __webpack_require__(239);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25546,7 +25629,7 @@
 	}
 
 /***/ },
-/* 236 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25565,13 +25648,13 @@
 	};
 
 /***/ },
-/* 237 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(238);
+	var styles = __webpack_require__(241);
 
 	var MessageItem = React.createClass({
 	  displayName: 'MessageItem',
@@ -25597,13 +25680,13 @@
 	module.exports = MessageItem;
 
 /***/ },
-/* 238 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(239);
+	var content = __webpack_require__(242);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25623,7 +25706,7 @@
 	}
 
 /***/ },
-/* 239 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25642,7 +25725,7 @@
 	};
 
 /***/ },
-/* 240 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -25661,81 +25744,6 @@
 	};
 
 	module.exports = addRoom;
-
-/***/ },
-/* 241 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(242);
-
-	var Switch = __webpack_require__(231);
-
-	var SexSwitch = React.createClass({
-	  displayName: 'SexSwitch',
-
-	  getSex: function getSex() {},
-
-	  render: function render() {
-	    return React.createElement(
-	      'div',
-	      { className: styles.sex, onClick: this.getSex },
-	      React.createElement(
-	        'p',
-	        { className: styles.content },
-	        '男生'
-	      ),
-	      React.createElement(Switch, { ref: 'switch' })
-	    );
-	  }
-	});
-
-	module.exports = SexSwitch;
-
-/***/ },
-/* 242 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(243);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 243 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._1zcZDKZ_EyV1IC29aYMLHN {\n  position: relative;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse;\n  width: 100%;\n  height: 38px;\n  cursor: pointer; }\n\n._2w5CfeBrmkvnUWJiT0CyJc {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n      -ms-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  margin: 0; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"sex": "_1zcZDKZ_EyV1IC29aYMLHN",
-		"content": "_2w5CfeBrmkvnUWJiT0CyJc"
-	};
 
 /***/ }
 /******/ ]);
