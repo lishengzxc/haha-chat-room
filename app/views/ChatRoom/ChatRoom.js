@@ -14,7 +14,6 @@ var ChatRoom = React.createClass({
   componentDidMount: function () {
     var that = this;
     socket.on('receiveMessage:' + nowRoomId, function (data) {
-      //console.log(that.state);
       var message = data.message;
       var messages = that.state.messages;
       messages.push({
@@ -26,7 +25,6 @@ var ChatRoom = React.createClass({
       that.setState({
         messages: messages
       }, that.scroll);
-      console.log(data);
     });
   },
 

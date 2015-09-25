@@ -52,7 +52,7 @@
 
 	var Store = __webpack_require__(214);
 
-	var addRoom = __webpack_require__(237);
+	var addRoom = __webpack_require__(240);
 
 	Router.run(routes, Router.HashLocation, function (Root) {
 	  React.render(React.createElement(Root, null), document.body);
@@ -23565,7 +23565,7 @@
 	var NowRoom = __webpack_require__(211);
 	var AllRoom = __webpack_require__(225);
 	var Me = __webpack_require__(228);
-	var ChatRoom = __webpack_require__(231);
+	var ChatRoom = __webpack_require__(234);
 
 	var routes = React.createElement(
 	  Route,
@@ -25272,6 +25272,8 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(229);
 
+	var SexSwitch = __webpack_require__(241);
+
 	var Me = React.createClass({
 	  displayName: 'Me',
 
@@ -25284,7 +25286,8 @@
 	        'p',
 	        { className: styles.name },
 	        '2333'
-	      )
+	      ),
+	      React.createElement(SexSwitch, null)
 	    );
 	  }
 	});
@@ -25326,7 +25329,7 @@
 
 
 	// module
-	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
+	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px 20px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
 
 	// exports
 	exports.locals = {
@@ -25343,7 +25346,85 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(232);
 
-	var MessageItem = __webpack_require__(234);
+	var Switch = React.createClass({
+	  displayName: 'Switch',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      check: false
+	    };
+	  },
+
+	  onChange: function onChange() {
+	    this.setState({
+	      check: !this.state.check
+	    });
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'label',
+	      { className: styles['switch'] },
+	      React.createElement('input', { className: styles.checkbox, type: 'checkbox', checked: this.state.check, onChange: this.onChange })
+	    );
+	  }
+	});
+
+	module.exports = Switch;
+
+/***/ },
+/* 232 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(233);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Switch.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Switch.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 233 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._32bzORUd3J7h_K9TUCc9U5 {\n  display: block;\n  height: 38px; }\n\n._1patylT3psoHux8fGTDiXx {\n  width: 52px;\n  height: 32px;\n  position: absolute;\n  right: 0;\n  z-index: 2;\n  border: 0;\n  background: 0 0;\n  -webkit-appearance: none;\n  outline: 0; }\n  ._1patylT3psoHux8fGTDiXx::before {\n    content: '';\n    width: 50px;\n    height: 30px;\n    border: 1px solid #18b4ed;\n    background-color: #18b4ed;\n    border-radius: 20px;\n    cursor: pointer;\n    display: inline-block;\n    position: relative;\n    vertical-align: middle;\n    box-sizing: content-box;\n    box-shadow: #18b4ed 0 0 0 0 inset;\n    -webkit-background-clip: content-box; }\n  ._1patylT3psoHux8fGTDiXx::after {\n    content: '';\n    width: 30px;\n    height: 30px;\n    position: absolute;\n    top: 1px;\n    left: 0;\n    border-radius: 100%;\n    background-color: #fff;\n    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);\n    -webkit-transition: left 0.2s;\n            transition: left 0.2s; }\n  ._1patylT3psoHux8fGTDiXx:checked::before {\n    border-color: #F3A2CB;\n    box-shadow: #F3A2CB 0 0 0 16px inset;\n    background-color: #F3A2CB; }\n  ._1patylT3psoHux8fGTDiXx:checked::after {\n    left: 21px; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"switch": "_32bzORUd3J7h_K9TUCc9U5",
+		"checkbox": "_1patylT3psoHux8fGTDiXx"
+	};
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(235);
+
+	var MessageItem = __webpack_require__(237);
 
 	var ChatRoom = React.createClass({
 	  displayName: 'ChatRoom',
@@ -25357,7 +25438,6 @@
 	  componentDidMount: function componentDidMount() {
 	    var that = this;
 	    socket.on('receiveMessage:' + nowRoomId, function (data) {
-	      //console.log(that.state);
 	      var message = data.message;
 	      var messages = that.state.messages;
 	      messages.push({
@@ -25369,7 +25449,6 @@
 	      that.setState({
 	        messages: messages
 	      }, that.scroll);
-	      console.log(data);
 	    });
 	  },
 
@@ -25441,13 +25520,13 @@
 	module.exports = ChatRoom;
 
 /***/ },
-/* 232 */
+/* 235 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(233);
+	var content = __webpack_require__(236);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25467,7 +25546,7 @@
 	}
 
 /***/ },
-/* 233 */
+/* 236 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25486,13 +25565,13 @@
 	};
 
 /***/ },
-/* 234 */
+/* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(235);
+	var styles = __webpack_require__(238);
 
 	var MessageItem = React.createClass({
 	  displayName: 'MessageItem',
@@ -25518,13 +25597,13 @@
 	module.exports = MessageItem;
 
 /***/ },
-/* 235 */
+/* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(236);
+	var content = __webpack_require__(239);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25544,7 +25623,7 @@
 	}
 
 /***/ },
-/* 236 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25563,7 +25642,7 @@
 	};
 
 /***/ },
-/* 237 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -25582,6 +25661,81 @@
 	};
 
 	module.exports = addRoom;
+
+/***/ },
+/* 241 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(242);
+
+	var Switch = __webpack_require__(231);
+
+	var SexSwitch = React.createClass({
+	  displayName: 'SexSwitch',
+
+	  getSex: function getSex() {},
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: styles.sex, onClick: this.getSex },
+	      React.createElement(
+	        'p',
+	        { className: styles.content },
+	        '男生'
+	      ),
+	      React.createElement(Switch, { ref: 'switch' })
+	    );
+	  }
+	});
+
+	module.exports = SexSwitch;
+
+/***/ },
+/* 242 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(243);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./SexSwitch.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1zcZDKZ_EyV1IC29aYMLHN {\n  position: relative;\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse;\n  width: 100%;\n  height: 38px;\n  cursor: pointer; }\n\n._2w5CfeBrmkvnUWJiT0CyJc {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  -webkit-transform: translate(-50%, -50%);\n      -ms-transform: translate(-50%, -50%);\n          transform: translate(-50%, -50%);\n  margin: 0; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"sex": "_1zcZDKZ_EyV1IC29aYMLHN",
+		"content": "_2w5CfeBrmkvnUWJiT0CyJc"
+	};
 
 /***/ }
 /******/ ]);
