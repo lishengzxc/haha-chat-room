@@ -25355,7 +25355,20 @@
 	  },
 
 	  componentDidMount: function componentDidMount() {
-	    socket.on('receiveMessage' + nowRoomId, function (data) {
+	    var that = this;
+	    socket.on('receiveMessage:' + nowRoomId, function (data) {
+	      //console.log(that.state);
+	      var message = data.message;
+	      var messages = that.state.messages;
+	      messages.push({
+	        rs: 'receive',
+	        content: message,
+	        avatar: 2
+	      });
+
+	      that.setState({
+	        messages: messages
+	      }, that.scroll);
 	      console.log(data);
 	    });
 	  },
