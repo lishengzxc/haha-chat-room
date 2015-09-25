@@ -14,10 +14,10 @@ var RoomItem = React.createClass({
         console.log(this.props);
         enterRoom.emitEnterRoom(this.props);
       } else {
-        event.preventDefault()
+        return event.preventDefault()
       }
     }
-
+    nowRoomId = this.props.id;
   },
 
   render: function () {

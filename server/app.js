@@ -8,6 +8,11 @@ io.sockets.on('connection', function (socket) {
   socket.on('addRoom', function (data) {
     Room.add(data.name);
     io.sockets.emit('addRoomOK', Room.get());
-  })
+  });
+
+  socket.on('sendMessage', function (data) {
+    console.log(data);
+    io.sockets.emit('receiveMessage:' + data.id, data);
+  });
 
 });

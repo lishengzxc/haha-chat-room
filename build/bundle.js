@@ -25035,9 +25035,10 @@
 	        console.log(this.props);
 	        enterRoom.emitEnterRoom(this.props);
 	      } else {
-	        event.preventDefault();
+	        return event.preventDefault();
 	      }
 	    }
+	    nowRoomId = this.props.id;
 	  },
 
 	  render: function render() {
@@ -25354,7 +25355,9 @@
 	  },
 
 	  componentDidMount: function componentDidMount() {
-	    //setInterval(this.receive, 1000);
+	    socket.on('receiveMessage' + nowRoomId, function (data) {
+	      console.log(data);
+	    });
 	  },
 
 	  submit: function submit(event) {
@@ -25363,11 +25366,17 @@
 	    if (!message) return;
 
 	    var messages = this.state.messages;
-	    messages.push({ rs: 'send', content: message, avatar: 1 });
+	    messages.push({
+	      rs: 'send',
+	      content: message,
+	      avatar: 1
+	    });
 
 	    this.setState({
 	      messages: messages
 	    }, this.scroll);
+
+	    socket.emit('sendMessage', { message: message, id: nowRoomId });
 
 	    this.refs.message.getDOMNode().value = '';
 	  },
