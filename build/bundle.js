@@ -50,9 +50,9 @@
 	var Router = __webpack_require__(157);
 	var routes = __webpack_require__(196);
 
-	var Store = __webpack_require__(386);
+	var Store = __webpack_require__(214);
 
-	var addRoom = __webpack_require__(381);
+	var addRoom = __webpack_require__(237);
 
 	Router.run(routes, Router.HashLocation, function (Root) {
 	  React.render(React.createElement(Root, null), document.body);
@@ -23563,9 +23563,9 @@
 
 	var App = __webpack_require__(197);
 	var NowRoom = __webpack_require__(211);
-	var AllRoom = __webpack_require__(218);
-	var Me = __webpack_require__(221);
-	var ChatRoom = __webpack_require__(224);
+	var AllRoom = __webpack_require__(225);
+	var Me = __webpack_require__(228);
+	var ChatRoom = __webpack_require__(231);
 
 	var routes = React.createElement(
 	  Route,
@@ -24235,13 +24235,13 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(212);
 
-	var Store = __webpack_require__(386);
+	var Store = __webpack_require__(214);
 
 	var getNowRoom = function getNowRoom() {
 	  return Store.getNowRoomList();
 	};
 
-	var RoomItem = __webpack_require__(214);
+	var RoomItem = __webpack_require__(220);
 
 	var NowRoom = React.createClass({
 	  displayName: 'NowRoom',
@@ -24325,511 +24325,389 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(215);
+	var AppDispatcher = __webpack_require__(215);
+	var EventEmitter = __webpack_require__(219).EventEmitter;
 
-	var colors = __webpack_require__(217);
+	function assign(target) {
+	  for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	    sources[_key - 1] = arguments[_key];
+	  }
 
-	var enterRoom = __webpack_require__(388);
+	  sources.forEach(function (source) {
+	    Object.defineProperties(target, Object.keys(source).reduce(function (descriptors, key) {
+	      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
+	      return descriptors;
+	    }, {}));
+	  });
+	  return target;
+	}
 
-	var RoomItem = React.createClass({
-	  displayName: 'RoomItem',
+	var nowRoomList = [];
+	var allRoomList = [];
 
-	  chooseRoom: function chooseRoom(event) {
-	    if (window.location.hash.substr(2) === 'all') {
-	      if (confirm('确认要进入这个房间吗？')) {
-	        console.log(this.props);
-	        enterRoom.emitEnterRoom(this.props);
-	      } else {
-	        event.preventDefault();
-	      }
-	    }
+	var Store = assign({}, EventEmitter.prototype, {
+	  emitChange: function emitChange() {
+	    this.emit('change');
 	  },
 
-	  render: function render() {
-	    return React.createElement(
-	      'li',
-	      { className: styles.item },
-	      React.createElement(
-	        'a',
-	        { className: styles.a, href: '#/chat', onClick: this.chooseRoom },
-	        React.createElement('i', { className: styles.icon + " fa fa-users", style: { color: colors.get() } }),
-	        React.createElement(
-	          'div',
-	          { className: styles.content },
-	          React.createElement(
-	            'p',
-	            { className: 'name' },
-	            this.props.name,
-	            React.createElement(
-	              'small',
-	              { className: styles.small },
-	              this.props.id
-	            )
-	          )
-	        )
-	      )
-	    );
+	  addChangeListener: function addChangeListener(callback) {
+	    this.on('change', callback);
+	  },
+
+	  removeChangeListener: function removeChangeListener(callback) {
+	    this.removeListener('change', callback);
+	  },
+
+	  getAllRoomList: function getAllRoomList() {
+	    return allRoomList;
+	  },
+
+	  getNowRoomList: function getNowRoomList() {
+	    return nowRoomList;
 	  }
 	});
 
-	module.exports = RoomItem;
+	AppDispatcher.register(function (action) {
+	  switch (action.actionType) {
+
+	    case 'ADDROOM':
+	      allRoomList = action.data;
+	      Store.emitChange();
+	      break;
+
+	    case 'ENTERROOM':
+	      var tmpList = nowRoomList.filter(function (result) {
+	        return result.id !== action.data.id;
+	      });
+	      tmpList.push(action.data);
+	      nowRoomList = tmpList;
+
+	      Store.emitChange();
+	      break;
+	  }
+	});
+
+	module.exports = Store;
 
 /***/ },
 /* 215 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// style-loader: Adds some css to the DOM by adding a <style> tag
+	'use strict';
 
-	// load the styles
-	var content = __webpack_require__(216);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
+	var Dispatcher = __webpack_require__(216).Dispatcher;
+	module.exports = new Dispatcher();
 
 /***/ },
 /* 216 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(200)();
-	// imports
+	/**
+	 * Copyright (c) 2014-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 */
 
+	module.exports.Dispatcher = __webpack_require__(217);
 
-	// module
-	exports.push([module.id, "._1xCm8TYwht21XQ2ARvkot5 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  height: 65px;\n  border-bottom: 1px solid #ccc;\n  padding: 10px 15px;\n  background-color: #fff; }\n\n._1BWKJ9XF1bGpIPW8lWT6t8 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1; }\n\n._1xCm8TYwht21XQ2ARvkot5 {\n  font-size: 24px; }\n\n._26dOgw_MuCJVcSLmL9rir0 {\n  font-size: 16px;\n  margin-left: 10px; }\n\n._3k_zbmhwAdWhapjmdh3dEv {\n  margin-left: 5px;\n  font-size: 12px; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"item": "_1xCm8TYwht21XQ2ARvkot5",
-		"a": "_1BWKJ9XF1bGpIPW8lWT6t8",
-		"content": "_26dOgw_MuCJVcSLmL9rir0",
-		"small": "_3k_zbmhwAdWhapjmdh3dEv"
-	};
 
 /***/ },
 /* 217 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright (c) 2014-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule Dispatcher
+	 * 
+	 * @preventMunge
+	 */
 
 	'use strict';
 
-	var colors = (function () {
+	exports.__esModule = true;
 
-	  var beforeIndex = 0;
-	  var index;
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	  var colorsList = ['001f3f', '0074d9', '7fdbff', '39cccc', '3d9970', '2ecc40', '01ff70', 'ffdc00', 'ff851b', 'ff4136', '85144b', 'f012be', 'b10dc9', '111111', 'aaaaaa', 'dddddd'];
+	var invariant = __webpack_require__(218);
 
-	  var randomIndex = function randomIndex() {
-	    return Math.random() * 15 | 0;
+	var _prefix = 'ID_';
+
+	/**
+	 * Dispatcher is used to broadcast payloads to registered callbacks. This is
+	 * different from generic pub-sub systems in two ways:
+	 *
+	 *   1) Callbacks are not subscribed to particular events. Every payload is
+	 *      dispatched to every registered callback.
+	 *   2) Callbacks can be deferred in whole or part until other callbacks have
+	 *      been executed.
+	 *
+	 * For example, consider this hypothetical flight destination form, which
+	 * selects a default city when a country is selected:
+	 *
+	 *   var flightDispatcher = new Dispatcher();
+	 *
+	 *   // Keeps track of which country is selected
+	 *   var CountryStore = {country: null};
+	 *
+	 *   // Keeps track of which city is selected
+	 *   var CityStore = {city: null};
+	 *
+	 *   // Keeps track of the base flight price of the selected city
+	 *   var FlightPriceStore = {price: null}
+	 *
+	 * When a user changes the selected city, we dispatch the payload:
+	 *
+	 *   flightDispatcher.dispatch({
+	 *     actionType: 'city-update',
+	 *     selectedCity: 'paris'
+	 *   });
+	 *
+	 * This payload is digested by `CityStore`:
+	 *
+	 *   flightDispatcher.register(function(payload) {
+	 *     if (payload.actionType === 'city-update') {
+	 *       CityStore.city = payload.selectedCity;
+	 *     }
+	 *   });
+	 *
+	 * When the user selects a country, we dispatch the payload:
+	 *
+	 *   flightDispatcher.dispatch({
+	 *     actionType: 'country-update',
+	 *     selectedCountry: 'australia'
+	 *   });
+	 *
+	 * This payload is digested by both stores:
+	 *
+	 *   CountryStore.dispatchToken = flightDispatcher.register(function(payload) {
+	 *     if (payload.actionType === 'country-update') {
+	 *       CountryStore.country = payload.selectedCountry;
+	 *     }
+	 *   });
+	 *
+	 * When the callback to update `CountryStore` is registered, we save a reference
+	 * to the returned token. Using this token with `waitFor()`, we can guarantee
+	 * that `CountryStore` is updated before the callback that updates `CityStore`
+	 * needs to query its data.
+	 *
+	 *   CityStore.dispatchToken = flightDispatcher.register(function(payload) {
+	 *     if (payload.actionType === 'country-update') {
+	 *       // `CountryStore.country` may not be updated.
+	 *       flightDispatcher.waitFor([CountryStore.dispatchToken]);
+	 *       // `CountryStore.country` is now guaranteed to be updated.
+	 *
+	 *       // Select the default city for the new country
+	 *       CityStore.city = getDefaultCityForCountry(CountryStore.country);
+	 *     }
+	 *   });
+	 *
+	 * The usage of `waitFor()` can be chained, for example:
+	 *
+	 *   FlightPriceStore.dispatchToken =
+	 *     flightDispatcher.register(function(payload) {
+	 *       switch (payload.actionType) {
+	 *         case 'country-update':
+	 *         case 'city-update':
+	 *           flightDispatcher.waitFor([CityStore.dispatchToken]);
+	 *           FlightPriceStore.price =
+	 *             getFlightPriceStore(CountryStore.country, CityStore.city);
+	 *           break;
+	 *     }
+	 *   });
+	 *
+	 * The `country-update` payload will be guaranteed to invoke the stores'
+	 * registered callbacks in order: `CountryStore`, `CityStore`, then
+	 * `FlightPriceStore`.
+	 */
+
+	var Dispatcher = (function () {
+	  function Dispatcher() {
+	    _classCallCheck(this, Dispatcher);
+
+	    this._callbacks = {};
+	    this._isDispatching = false;
+	    this._isHandled = {};
+	    this._isPending = {};
+	    this._lastID = 1;
+	  }
+
+	  /**
+	   * Registers a callback to be invoked with every dispatched payload. Returns
+	   * a token that can be used with `waitFor()`.
+	   */
+
+	  Dispatcher.prototype.register = function register(callback) {
+	    var id = _prefix + this._lastID++;
+	    this._callbacks[id] = callback;
+	    return id;
 	  };
 
-	  var getRandomColor = function getRandomColor() {
-	    index = randomIndex();
-	    if (index !== beforeIndex) {
-	      beforeIndex = index;
-	      return '#' + colorsList[index];
-	    } else {
-	      getRandomColor();
+	  /**
+	   * Removes a callback based on its token.
+	   */
+
+	  Dispatcher.prototype.unregister = function unregister(id) {
+	    !this._callbacks[id] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.unregister(...): `%s` does not map to a registered callback.', id) : invariant(false) : undefined;
+	    delete this._callbacks[id];
+	  };
+
+	  /**
+	   * Waits for the callbacks specified to be invoked before continuing execution
+	   * of the current callback. This method should only be used by a callback in
+	   * response to a dispatched payload.
+	   */
+
+	  Dispatcher.prototype.waitFor = function waitFor(ids) {
+	    !this._isDispatching ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.waitFor(...): Must be invoked while dispatching.') : invariant(false) : undefined;
+	    for (var ii = 0; ii < ids.length; ii++) {
+	      var id = ids[ii];
+	      if (this._isPending[id]) {
+	        !this._isHandled[id] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.waitFor(...): Circular dependency detected while ' + 'waiting for `%s`.', id) : invariant(false) : undefined;
+	        continue;
+	      }
+	      !this._callbacks[id] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.waitFor(...): `%s` does not map to a registered callback.', id) : invariant(false) : undefined;
+	      this._invokeCallback(id);
 	    }
 	  };
 
-	  return {
-	    get: getRandomColor
+	  /**
+	   * Dispatches a payload to all registered callbacks.
+	   */
+
+	  Dispatcher.prototype.dispatch = function dispatch(payload) {
+	    !!this._isDispatching ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatch.dispatch(...): Cannot dispatch in the middle of a dispatch.') : invariant(false) : undefined;
+	    this._startDispatching(payload);
+	    try {
+	      for (var id in this._callbacks) {
+	        if (this._isPending[id]) {
+	          continue;
+	        }
+	        this._invokeCallback(id);
+	      }
+	    } finally {
+	      this._stopDispatching();
+	    }
 	  };
+
+	  /**
+	   * Is this Dispatcher currently dispatching.
+	   */
+
+	  Dispatcher.prototype.isDispatching = function isDispatching() {
+	    return this._isDispatching;
+	  };
+
+	  /**
+	   * Call the callback stored with the given id. Also do some internal
+	   * bookkeeping.
+	   *
+	   * @internal
+	   */
+
+	  Dispatcher.prototype._invokeCallback = function _invokeCallback(id) {
+	    this._isPending[id] = true;
+	    this._callbacks[id](this._pendingPayload);
+	    this._isHandled[id] = true;
+	  };
+
+	  /**
+	   * Set up bookkeeping needed when dispatching.
+	   *
+	   * @internal
+	   */
+
+	  Dispatcher.prototype._startDispatching = function _startDispatching(payload) {
+	    for (var id in this._callbacks) {
+	      this._isPending[id] = false;
+	      this._isHandled[id] = false;
+	    }
+	    this._pendingPayload = payload;
+	    this._isDispatching = true;
+	  };
+
+	  /**
+	   * Clear bookkeeping used for dispatching.
+	   *
+	   * @internal
+	   */
+
+	  Dispatcher.prototype._stopDispatching = function _stopDispatching() {
+	    delete this._pendingPayload;
+	    this._isDispatching = false;
+	  };
+
+	  return Dispatcher;
 	})();
 
-	module.exports = colors;
+	module.exports = Dispatcher;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 218 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright 2013-2015, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 * @providesModule invariant
+	 */
 
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(219);
+	"use strict";
 
-	var Store = __webpack_require__(386);
+	/**
+	 * Use invariant() to assert state which your program assumes to be true.
+	 *
+	 * Provide sprintf-style format (only %s is supported) and arguments
+	 * to provide information about what broke and what you were
+	 * expecting.
+	 *
+	 * The invariant message will be stripped in production, but the invariant
+	 * will remain to ensure logic does not differ in production.
+	 */
 
-	var getAllRoom = function getAllRoom() {
-	  return Store.getAllRoomList();
+	var invariant = function (condition, format, a, b, c, d, e, f) {
+	  if (process.env.NODE_ENV !== 'production') {
+	    if (format === undefined) {
+	      throw new Error('invariant requires an error message argument');
+	    }
+	  }
+
+	  if (!condition) {
+	    var error;
+	    if (format === undefined) {
+	      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
+	    } else {
+	      var args = [a, b, c, d, e, f];
+	      var argIndex = 0;
+	      error = new Error('Invariant Violation: ' + format.replace(/%s/g, function () {
+	        return args[argIndex++];
+	      }));
+	    }
+
+	    error.framesToPop = 1; // we don't care about invariant's own frame
+	    throw error;
+	  }
 	};
 
-	var RoomItem = __webpack_require__(214);
-
-	var AllRoom = React.createClass({
-	  displayName: 'AllRoom',
-
-	  getInitialState: function getInitialState() {
-	    return {
-	      allRoomList: getAllRoom()
-	    };
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    Store.addChangeListener(this.onAddRoom);
-	  },
-
-	  componentWillUnmount: function componentWillUnmount() {
-	    Store.removeChangeListener(this.onAddRoom);
-	  },
-
-	  onAddRoom: function onAddRoom() {
-	    this.setState({
-	      allRoomList: getAllRoom()
-	    });
-	  },
-
-	  render: function render() {
-	    return React.createElement(
-	      'ul',
-	      null,
-	      this.state.allRoomList.map(function (result, index) {
-	        return React.createElement(RoomItem, { key: index, name: result.name, id: result.id });
-	      })
-	    );
-	  }
-	});
-
-	module.exports = AllRoom;
+	module.exports = invariant;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
 /* 219 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(220);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 220 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "", ""]);
-
-	// exports
-
-
-/***/ },
-/* 221 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(222);
-
-	var Me = React.createClass({
-	  displayName: 'Me',
-
-	  render: function render() {
-	    return React.createElement(
-	      'div',
-	      { className: styles.me },
-	      React.createElement('img', { src: 'img/avatar1.svg' }),
-	      React.createElement(
-	        'p',
-	        { className: styles.name },
-	        '2333'
-	      )
-	    );
-	  }
-	});
-
-	module.exports = Me;
-
-/***/ },
-/* 222 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(223);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 223 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"me": "_1vpdxiIKre-pXRwx8LVtQC",
-		"name": "goZ0uzJ4MMuyw0_65xoZa"
-	};
-
-/***/ },
-/* 224 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(225);
-
-	var MessageItem = __webpack_require__(227);
-
-	var ChatRoom = React.createClass({
-	  displayName: 'ChatRoom',
-
-	  getInitialState: function getInitialState() {
-	    return {
-	      messages: []
-	    };
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    //setInterval(this.receive, 1000);
-	  },
-
-	  submit: function submit(event) {
-	    event.preventDefault();
-	    var message = this.refs.message.getDOMNode().value;
-	    if (!message) return;
-
-	    var messages = this.state.messages;
-	    messages.push({ rs: 'send', content: message, avatar: 1 });
-
-	    this.setState({
-	      messages: messages
-	    }, this.scroll);
-
-	    this.refs.message.getDOMNode().value = '';
-	  },
-
-	  receive: function receive() {
-	    if (Math.random() > 0.5) {
-	      var messages = this.state.messages;
-	      messages.push({ rs: 'receive', content: "你好" + new Date().getTime(), avatar: 2 });
-
-	      this.setState({
-	        messages: messages
-	      }, this.scroll);
-	    }
-	  },
-
-	  scroll: function scroll() {
-
-	    var lists = this.refs.ul.getDOMNode().children;
-	    lists[lists.length - 1].scrollIntoView();
-	  },
-
-	  render: function render() {
-	    var messages = this.state.messages;
-
-	    return React.createElement(
-	      'div',
-	      { className: styles.chatroom },
-	      React.createElement(
-	        'ul',
-	        { className: styles.chatlist, ref: 'ul' },
-	        messages.map(function (result, index) {
-	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.avatar, key: index });
-	        })
-	      ),
-	      React.createElement(
-	        'form',
-	        { className: styles.inputgroup, onSubmit: this.submit },
-	        React.createElement('input', { className: styles.input, type: 'text', ref: 'message' }),
-	        React.createElement(
-	          'button',
-	          { className: styles.submit, type: 'submit' },
-	          React.createElement('i', { className: 'fa fa-paper-plane' })
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = ChatRoom;
-
-/***/ },
-/* 225 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(226);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 226 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, ".YiqYbIOSLw74YylUgD8cu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  position: fixed;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 5px;\n  min-height: 45px;\n  border-top: 1px solid #ccc;\n  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f9f9f9), to(#e0e0e0));\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.12); }\n\n._2osyOb1Z6qdhL8fv7YHZji {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1;\n  padding-left: 5px;\n  margin-right: 5px;\n  border-radius: 3px;\n  border: 1px solid #ccc; }\n\n.YyotYJ5IghhcUHSPkDHO8 {\n  width: 60px;\n  border: none;\n  background-color: #18b4ed;\n  color: #fff;\n  border-radius: 3px; }\n\n.dQ_Nam8yzKzSnWvkONE2G {\n  padding: 10px; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"inputgroup": "YiqYbIOSLw74YylUgD8cu",
-		"input": "_2osyOb1Z6qdhL8fv7YHZji",
-		"submit": "YyotYJ5IghhcUHSPkDHO8",
-		"chatlist": "dQ_Nam8yzKzSnWvkONE2G"
-	};
-
-/***/ },
-/* 227 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(228);
-
-	var MessageItem = React.createClass({
-	  displayName: 'MessageItem',
-
-	  render: function render() {
-	    var rs = this.props.rs;
-	    var content = this.props.content;
-	    var avatar = this.props.avatar;
-
-	    return React.createElement(
-	      'li',
-	      { className: styles[rs] },
-	      React.createElement('img', { className: styles.avatar, src: "img/avatar" + avatar + ".svg" }),
-	      React.createElement(
-	        'p',
-	        { className: styles.content },
-	        content
-	      )
-	    );
-	  }
-	});
-
-	module.exports = MessageItem;
-
-/***/ },
-/* 228 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(229);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 229 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._16-k8Xcb21zA5m33eHZLBu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex; }\n\n._3fI-71l4AqWr_6NIDGJRyd {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse; }\n\n._1e_0XZdHJ3bhBscXN5Okwx {\n  width: 35px;\n  height: 35px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0; }\n\n._3pwXoj9L13GPfKoncM_Kvb {\n  margin: 16px 5px;\n  padding: 10px;\n  border-radius: 6px;\n  word-break: break-word; }\n\n._16-k8Xcb21zA5m33eHZLBu ._3pwXoj9L13GPfKoncM_Kvb {\n  border: 1px solid #ccc; }\n\n._3fI-71l4AqWr_6NIDGJRyd ._3pwXoj9L13GPfKoncM_Kvb {\n  color: #fff;\n  background-color: #18b4ed;\n  border: 1px solid #18b4ed; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"receive": "_16-k8Xcb21zA5m33eHZLBu",
-		"send": "_3fI-71l4AqWr_6NIDGJRyd",
-		"avatar": "_1e_0XZdHJ3bhBscXN5Okwx",
-		"content": "_3pwXoj9L13GPfKoncM_Kvb"
-	};
-
-/***/ },
-/* 230 */,
-/* 231 */,
-/* 232 */,
-/* 233 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -25136,568 +25014,147 @@
 
 
 /***/ },
-/* 234 */,
-/* 235 */,
-/* 236 */,
-/* 237 */,
-/* 238 */,
-/* 239 */,
-/* 240 */,
-/* 241 */,
-/* 242 */,
-/* 243 */,
-/* 244 */,
-/* 245 */,
-/* 246 */,
-/* 247 */,
-/* 248 */,
-/* 249 */,
-/* 250 */,
-/* 251 */,
-/* 252 */,
-/* 253 */,
-/* 254 */,
-/* 255 */,
-/* 256 */,
-/* 257 */,
-/* 258 */,
-/* 259 */,
-/* 260 */,
-/* 261 */,
-/* 262 */,
-/* 263 */,
-/* 264 */,
-/* 265 */,
-/* 266 */,
-/* 267 */,
-/* 268 */,
-/* 269 */,
-/* 270 */,
-/* 271 */,
-/* 272 */,
-/* 273 */,
-/* 274 */,
-/* 275 */,
-/* 276 */,
-/* 277 */,
-/* 278 */,
-/* 279 */,
-/* 280 */,
-/* 281 */,
-/* 282 */,
-/* 283 */,
-/* 284 */,
-/* 285 */,
-/* 286 */,
-/* 287 */,
-/* 288 */,
-/* 289 */,
-/* 290 */,
-/* 291 */,
-/* 292 */,
-/* 293 */,
-/* 294 */,
-/* 295 */,
-/* 296 */,
-/* 297 */,
-/* 298 */,
-/* 299 */,
-/* 300 */,
-/* 301 */,
-/* 302 */,
-/* 303 */,
-/* 304 */,
-/* 305 */,
-/* 306 */,
-/* 307 */,
-/* 308 */,
-/* 309 */,
-/* 310 */,
-/* 311 */,
-/* 312 */,
-/* 313 */,
-/* 314 */,
-/* 315 */,
-/* 316 */,
-/* 317 */,
-/* 318 */,
-/* 319 */,
-/* 320 */,
-/* 321 */,
-/* 322 */,
-/* 323 */,
-/* 324 */,
-/* 325 */,
-/* 326 */,
-/* 327 */,
-/* 328 */,
-/* 329 */,
-/* 330 */,
-/* 331 */,
-/* 332 */,
-/* 333 */,
-/* 334 */,
-/* 335 */,
-/* 336 */,
-/* 337 */,
-/* 338 */,
-/* 339 */,
-/* 340 */,
-/* 341 */,
-/* 342 */,
-/* 343 */,
-/* 344 */,
-/* 345 */,
-/* 346 */,
-/* 347 */,
-/* 348 */,
-/* 349 */,
-/* 350 */,
-/* 351 */,
-/* 352 */,
-/* 353 */,
-/* 354 */,
-/* 355 */,
-/* 356 */,
-/* 357 */,
-/* 358 */,
-/* 359 */,
-/* 360 */,
-/* 361 */,
-/* 362 */,
-/* 363 */,
-/* 364 */,
-/* 365 */,
-/* 366 */,
-/* 367 */,
-/* 368 */,
-/* 369 */,
-/* 370 */,
-/* 371 */,
-/* 372 */,
-/* 373 */,
-/* 374 */,
-/* 375 */,
-/* 376 */,
-/* 377 */,
-/* 378 */,
-/* 379 */,
-/* 380 */,
-/* 381 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var AppDispatcher = __webpack_require__(382);
-
-	var addRoom = {
-	  emitAddRoom: function emitAddRoom(data) {
-	    var action = {
-	      actionType: "ADDROOM",
-	      data: data
-	    };
-
-	    AppDispatcher.dispatch(action);
-	  }
-	};
-
-	module.exports = addRoom;
-
-/***/ },
-/* 382 */
+/* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Dispatcher = __webpack_require__(383).Dispatcher;
-	module.exports = new Dispatcher();
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(221);
 
-/***/ },
-/* 383 */
-/***/ function(module, exports, __webpack_require__) {
+	var colors = __webpack_require__(223);
 
-	/**
-	 * Copyright (c) 2014-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 */
+	var enterRoom = __webpack_require__(224);
 
-	module.exports.Dispatcher = __webpack_require__(384);
+	var RoomItem = React.createClass({
+	  displayName: 'RoomItem',
 
-
-/***/ },
-/* 384 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright (c) 2014-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule Dispatcher
-	 * 
-	 * @preventMunge
-	 */
-
-	'use strict';
-
-	exports.__esModule = true;
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-	var invariant = __webpack_require__(385);
-
-	var _prefix = 'ID_';
-
-	/**
-	 * Dispatcher is used to broadcast payloads to registered callbacks. This is
-	 * different from generic pub-sub systems in two ways:
-	 *
-	 *   1) Callbacks are not subscribed to particular events. Every payload is
-	 *      dispatched to every registered callback.
-	 *   2) Callbacks can be deferred in whole or part until other callbacks have
-	 *      been executed.
-	 *
-	 * For example, consider this hypothetical flight destination form, which
-	 * selects a default city when a country is selected:
-	 *
-	 *   var flightDispatcher = new Dispatcher();
-	 *
-	 *   // Keeps track of which country is selected
-	 *   var CountryStore = {country: null};
-	 *
-	 *   // Keeps track of which city is selected
-	 *   var CityStore = {city: null};
-	 *
-	 *   // Keeps track of the base flight price of the selected city
-	 *   var FlightPriceStore = {price: null}
-	 *
-	 * When a user changes the selected city, we dispatch the payload:
-	 *
-	 *   flightDispatcher.dispatch({
-	 *     actionType: 'city-update',
-	 *     selectedCity: 'paris'
-	 *   });
-	 *
-	 * This payload is digested by `CityStore`:
-	 *
-	 *   flightDispatcher.register(function(payload) {
-	 *     if (payload.actionType === 'city-update') {
-	 *       CityStore.city = payload.selectedCity;
-	 *     }
-	 *   });
-	 *
-	 * When the user selects a country, we dispatch the payload:
-	 *
-	 *   flightDispatcher.dispatch({
-	 *     actionType: 'country-update',
-	 *     selectedCountry: 'australia'
-	 *   });
-	 *
-	 * This payload is digested by both stores:
-	 *
-	 *   CountryStore.dispatchToken = flightDispatcher.register(function(payload) {
-	 *     if (payload.actionType === 'country-update') {
-	 *       CountryStore.country = payload.selectedCountry;
-	 *     }
-	 *   });
-	 *
-	 * When the callback to update `CountryStore` is registered, we save a reference
-	 * to the returned token. Using this token with `waitFor()`, we can guarantee
-	 * that `CountryStore` is updated before the callback that updates `CityStore`
-	 * needs to query its data.
-	 *
-	 *   CityStore.dispatchToken = flightDispatcher.register(function(payload) {
-	 *     if (payload.actionType === 'country-update') {
-	 *       // `CountryStore.country` may not be updated.
-	 *       flightDispatcher.waitFor([CountryStore.dispatchToken]);
-	 *       // `CountryStore.country` is now guaranteed to be updated.
-	 *
-	 *       // Select the default city for the new country
-	 *       CityStore.city = getDefaultCityForCountry(CountryStore.country);
-	 *     }
-	 *   });
-	 *
-	 * The usage of `waitFor()` can be chained, for example:
-	 *
-	 *   FlightPriceStore.dispatchToken =
-	 *     flightDispatcher.register(function(payload) {
-	 *       switch (payload.actionType) {
-	 *         case 'country-update':
-	 *         case 'city-update':
-	 *           flightDispatcher.waitFor([CityStore.dispatchToken]);
-	 *           FlightPriceStore.price =
-	 *             getFlightPriceStore(CountryStore.country, CityStore.city);
-	 *           break;
-	 *     }
-	 *   });
-	 *
-	 * The `country-update` payload will be guaranteed to invoke the stores'
-	 * registered callbacks in order: `CountryStore`, `CityStore`, then
-	 * `FlightPriceStore`.
-	 */
-
-	var Dispatcher = (function () {
-	  function Dispatcher() {
-	    _classCallCheck(this, Dispatcher);
-
-	    this._callbacks = {};
-	    this._isDispatching = false;
-	    this._isHandled = {};
-	    this._isPending = {};
-	    this._lastID = 1;
-	  }
-
-	  /**
-	   * Registers a callback to be invoked with every dispatched payload. Returns
-	   * a token that can be used with `waitFor()`.
-	   */
-
-	  Dispatcher.prototype.register = function register(callback) {
-	    var id = _prefix + this._lastID++;
-	    this._callbacks[id] = callback;
-	    return id;
-	  };
-
-	  /**
-	   * Removes a callback based on its token.
-	   */
-
-	  Dispatcher.prototype.unregister = function unregister(id) {
-	    !this._callbacks[id] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.unregister(...): `%s` does not map to a registered callback.', id) : invariant(false) : undefined;
-	    delete this._callbacks[id];
-	  };
-
-	  /**
-	   * Waits for the callbacks specified to be invoked before continuing execution
-	   * of the current callback. This method should only be used by a callback in
-	   * response to a dispatched payload.
-	   */
-
-	  Dispatcher.prototype.waitFor = function waitFor(ids) {
-	    !this._isDispatching ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.waitFor(...): Must be invoked while dispatching.') : invariant(false) : undefined;
-	    for (var ii = 0; ii < ids.length; ii++) {
-	      var id = ids[ii];
-	      if (this._isPending[id]) {
-	        !this._isHandled[id] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.waitFor(...): Circular dependency detected while ' + 'waiting for `%s`.', id) : invariant(false) : undefined;
-	        continue;
+	  chooseRoom: function chooseRoom(event) {
+	    if (window.location.hash.substr(2) === 'all') {
+	      if (confirm('确认要进入这个房间吗？')) {
+	        console.log(this.props);
+	        enterRoom.emitEnterRoom(this.props);
+	      } else {
+	        event.preventDefault();
 	      }
-	      !this._callbacks[id] ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatcher.waitFor(...): `%s` does not map to a registered callback.', id) : invariant(false) : undefined;
-	      this._invokeCallback(id);
 	    }
-	  };
+	  },
 
-	  /**
-	   * Dispatches a payload to all registered callbacks.
-	   */
+	  render: function render() {
+	    return React.createElement(
+	      'li',
+	      { className: styles.item },
+	      React.createElement(
+	        'a',
+	        { className: styles.a, href: '#/chat', onClick: this.chooseRoom },
+	        React.createElement('i', { className: styles.icon + " fa fa-users", style: { color: colors.get() } }),
+	        React.createElement(
+	          'div',
+	          { className: styles.content },
+	          React.createElement(
+	            'p',
+	            { className: 'name' },
+	            this.props.name,
+	            React.createElement(
+	              'small',
+	              { className: styles.small },
+	              this.props.id
+	            )
+	          )
+	        )
+	      )
+	    );
+	  }
+	});
 
-	  Dispatcher.prototype.dispatch = function dispatch(payload) {
-	    !!this._isDispatching ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Dispatch.dispatch(...): Cannot dispatch in the middle of a dispatch.') : invariant(false) : undefined;
-	    this._startDispatching(payload);
-	    try {
-	      for (var id in this._callbacks) {
-	        if (this._isPending[id]) {
-	          continue;
-	        }
-	        this._invokeCallback(id);
-	      }
-	    } finally {
-	      this._stopDispatching();
-	    }
-	  };
-
-	  /**
-	   * Is this Dispatcher currently dispatching.
-	   */
-
-	  Dispatcher.prototype.isDispatching = function isDispatching() {
-	    return this._isDispatching;
-	  };
-
-	  /**
-	   * Call the callback stored with the given id. Also do some internal
-	   * bookkeeping.
-	   *
-	   * @internal
-	   */
-
-	  Dispatcher.prototype._invokeCallback = function _invokeCallback(id) {
-	    this._isPending[id] = true;
-	    this._callbacks[id](this._pendingPayload);
-	    this._isHandled[id] = true;
-	  };
-
-	  /**
-	   * Set up bookkeeping needed when dispatching.
-	   *
-	   * @internal
-	   */
-
-	  Dispatcher.prototype._startDispatching = function _startDispatching(payload) {
-	    for (var id in this._callbacks) {
-	      this._isPending[id] = false;
-	      this._isHandled[id] = false;
-	    }
-	    this._pendingPayload = payload;
-	    this._isDispatching = true;
-	  };
-
-	  /**
-	   * Clear bookkeeping used for dispatching.
-	   *
-	   * @internal
-	   */
-
-	  Dispatcher.prototype._stopDispatching = function _stopDispatching() {
-	    delete this._pendingPayload;
-	    this._isDispatching = false;
-	  };
-
-	  return Dispatcher;
-	})();
-
-	module.exports = Dispatcher;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+	module.exports = RoomItem;
 
 /***/ },
-/* 385 */
+/* 221 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright 2013-2015, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 * @providesModule invariant
-	 */
+	// style-loader: Adds some css to the DOM by adding a <style> tag
 
-	"use strict";
-
-	/**
-	 * Use invariant() to assert state which your program assumes to be true.
-	 *
-	 * Provide sprintf-style format (only %s is supported) and arguments
-	 * to provide information about what broke and what you were
-	 * expecting.
-	 *
-	 * The invariant message will be stripped in production, but the invariant
-	 * will remain to ensure logic does not differ in production.
-	 */
-
-	var invariant = function (condition, format, a, b, c, d, e, f) {
-	  if (process.env.NODE_ENV !== 'production') {
-	    if (format === undefined) {
-	      throw new Error('invariant requires an error message argument');
-	    }
-	  }
-
-	  if (!condition) {
-	    var error;
-	    if (format === undefined) {
-	      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
-	    } else {
-	      var args = [a, b, c, d, e, f];
-	      var argIndex = 0;
-	      error = new Error('Invariant Violation: ' + format.replace(/%s/g, function () {
-	        return args[argIndex++];
-	      }));
-	    }
-
-	    error.framesToPop = 1; // we don't care about invariant's own frame
-	    throw error;
-	  }
-	};
-
-	module.exports = invariant;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
-
-/***/ },
-/* 386 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var AppDispatcher = __webpack_require__(382);
-	var EventEmitter = __webpack_require__(233).EventEmitter;
-
-	function assign(target) {
-	  for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-	    sources[_key - 1] = arguments[_key];
-	  }
-
-	  sources.forEach(function (source) {
-	    Object.defineProperties(target, Object.keys(source).reduce(function (descriptors, key) {
-	      descriptors[key] = Object.getOwnPropertyDescriptor(source, key);
-	      return descriptors;
-	    }, {}));
-	  });
-	  return target;
+	// load the styles
+	var content = __webpack_require__(222);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./RoomItem.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
 	}
 
-	var nowRoomList = [];
-	var allRoomList = [];
+/***/ },
+/* 222 */
+/***/ function(module, exports, __webpack_require__) {
 
-	var Store = assign({}, EventEmitter.prototype, {
-	  emitChange: function emitChange() {
-	    this.emit('change');
-	  },
+	exports = module.exports = __webpack_require__(200)();
+	// imports
 
-	  addChangeListener: function addChangeListener(callback) {
-	    this.on('change', callback);
-	  },
 
-	  removeChangeListener: function removeChangeListener(callback) {
-	    this.removeListener('change', callback);
-	  },
+	// module
+	exports.push([module.id, "._1xCm8TYwht21XQ2ARvkot5 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  height: 65px;\n  border-bottom: 1px solid #ccc;\n  padding: 10px 15px;\n  background-color: #fff; }\n\n._1BWKJ9XF1bGpIPW8lWT6t8 {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1; }\n\n._1xCm8TYwht21XQ2ARvkot5 {\n  font-size: 24px; }\n\n._26dOgw_MuCJVcSLmL9rir0 {\n  font-size: 16px;\n  margin-left: 10px; }\n\n._3k_zbmhwAdWhapjmdh3dEv {\n  margin-left: 5px;\n  font-size: 12px; }\n", ""]);
 
-	  getAllRoomList: function getAllRoomList() {
-	    return allRoomList;
-	  },
-
-	  getNowRoomList: function getNowRoomList() {
-	    return nowRoomList;
-	  }
-	});
-
-	AppDispatcher.register(function (action) {
-	  switch (action.actionType) {
-
-	    case 'ADDROOM':
-	      allRoomList = action.data;
-	      Store.emitChange();
-	      break;
-
-	    case 'ENTERROOM':
-	      var tmpList = nowRoomList.filter(function (result) {
-	        return result.id !== action.data.id;
-	      });
-	      tmpList.push(action.data);
-	      nowRoomList = tmpList;
-
-	      Store.emitChange();
-	      break;
-	  }
-	});
-
-	module.exports = Store;
+	// exports
+	exports.locals = {
+		"item": "_1xCm8TYwht21XQ2ARvkot5",
+		"a": "_1BWKJ9XF1bGpIPW8lWT6t8",
+		"content": "_26dOgw_MuCJVcSLmL9rir0",
+		"small": "_3k_zbmhwAdWhapjmdh3dEv"
+	};
 
 /***/ },
-/* 387 */,
-/* 388 */
+/* 223 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var colors = (function () {
+
+	  var beforeIndex = 0;
+	  var index;
+
+	  var colorsList = ['001f3f', '0074d9', '7fdbff', '39cccc', '3d9970', '2ecc40', '01ff70', 'ffdc00', 'ff851b', 'ff4136', '85144b', 'f012be', 'b10dc9', '111111', 'aaaaaa', 'dddddd'];
+
+	  var randomIndex = function randomIndex() {
+	    return Math.random() * 15 | 0;
+	  };
+
+	  var getRandomColor = function getRandomColor() {
+	    index = randomIndex();
+	    if (index !== beforeIndex) {
+	      beforeIndex = index;
+	      return '#' + colorsList[index];
+	    } else {
+	      getRandomColor();
+	    }
+	  };
+
+	  return {
+	    get: getRandomColor
+	  };
+	})();
+
+	module.exports = colors;
+
+/***/ },
+/* 224 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var AppDispatcher = __webpack_require__(382);
+	var AppDispatcher = __webpack_require__(215);
 
 	var enterRoom = {
 	  emitEnterRoom: function emitEnterRoom(data) {
@@ -25711,6 +25168,398 @@
 	};
 
 	module.exports = enterRoom;
+
+/***/ },
+/* 225 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(226);
+
+	var Store = __webpack_require__(214);
+
+	var getAllRoom = function getAllRoom() {
+	  return Store.getAllRoomList();
+	};
+
+	var RoomItem = __webpack_require__(220);
+
+	var AllRoom = React.createClass({
+	  displayName: 'AllRoom',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      allRoomList: getAllRoom()
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onAddRoom);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onAddRoom);
+	  },
+
+	  onAddRoom: function onAddRoom() {
+	    this.setState({
+	      allRoomList: getAllRoom()
+	    });
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'ul',
+	      null,
+	      this.state.allRoomList.map(function (result, index) {
+	        return React.createElement(RoomItem, { key: index, name: result.name, id: result.id });
+	      })
+	    );
+	  }
+	});
+
+	module.exports = AllRoom;
+
+/***/ },
+/* 226 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(227);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./AllRoom.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 227 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "", ""]);
+
+	// exports
+
+
+/***/ },
+/* 228 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(229);
+
+	var Me = React.createClass({
+	  displayName: 'Me',
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: styles.me },
+	      React.createElement('img', { src: 'img/avatar1.svg' }),
+	      React.createElement(
+	        'p',
+	        { className: styles.name },
+	        '2333'
+	      )
+	    );
+	  }
+	});
+
+	module.exports = Me;
+
+/***/ },
+/* 229 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(230);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Me.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 230 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"me": "_1vpdxiIKre-pXRwx8LVtQC",
+		"name": "goZ0uzJ4MMuyw0_65xoZa"
+	};
+
+/***/ },
+/* 231 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(232);
+
+	var MessageItem = __webpack_require__(234);
+
+	var ChatRoom = React.createClass({
+	  displayName: 'ChatRoom',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      messages: []
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    //setInterval(this.receive, 1000);
+	  },
+
+	  submit: function submit(event) {
+	    event.preventDefault();
+	    var message = this.refs.message.getDOMNode().value;
+	    if (!message) return;
+
+	    var messages = this.state.messages;
+	    messages.push({ rs: 'send', content: message, avatar: 1 });
+
+	    this.setState({
+	      messages: messages
+	    }, this.scroll);
+
+	    this.refs.message.getDOMNode().value = '';
+	  },
+
+	  receive: function receive() {
+	    if (Math.random() > 0.5) {
+	      var messages = this.state.messages;
+	      messages.push({ rs: 'receive', content: "你好" + new Date().getTime(), avatar: 2 });
+
+	      this.setState({
+	        messages: messages
+	      }, this.scroll);
+	    }
+	  },
+
+	  scroll: function scroll() {
+
+	    var lists = this.refs.ul.getDOMNode().children;
+	    lists[lists.length - 1].scrollIntoView();
+	  },
+
+	  render: function render() {
+	    var messages = this.state.messages;
+
+	    return React.createElement(
+	      'div',
+	      { className: styles.chatroom },
+	      React.createElement(
+	        'ul',
+	        { className: styles.chatlist, ref: 'ul' },
+	        messages.map(function (result, index) {
+	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.avatar, key: index });
+	        })
+	      ),
+	      React.createElement(
+	        'form',
+	        { className: styles.inputgroup, onSubmit: this.submit },
+	        React.createElement('input', { className: styles.input, type: 'text', ref: 'message' }),
+	        React.createElement(
+	          'button',
+	          { className: styles.submit, type: 'submit' },
+	          React.createElement('i', { className: 'fa fa-paper-plane' })
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = ChatRoom;
+
+/***/ },
+/* 232 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(233);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./ChatRoom.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 233 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, ".YiqYbIOSLw74YylUgD8cu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  position: fixed;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 5px;\n  min-height: 45px;\n  border-top: 1px solid #ccc;\n  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f9f9f9), to(#e0e0e0));\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.12); }\n\n._2osyOb1Z6qdhL8fv7YHZji {\n  -webkit-box-flex: 1;\n  -webkit-flex: 1;\n      -ms-flex: 1;\n          flex: 1;\n  padding-left: 5px;\n  margin-right: 5px;\n  border-radius: 3px;\n  border: 1px solid #ccc; }\n\n.YyotYJ5IghhcUHSPkDHO8 {\n  width: 60px;\n  border: none;\n  background-color: #18b4ed;\n  color: #fff;\n  border-radius: 3px; }\n\n.dQ_Nam8yzKzSnWvkONE2G {\n  padding: 10px; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"inputgroup": "YiqYbIOSLw74YylUgD8cu",
+		"input": "_2osyOb1Z6qdhL8fv7YHZji",
+		"submit": "YyotYJ5IghhcUHSPkDHO8",
+		"chatlist": "dQ_Nam8yzKzSnWvkONE2G"
+	};
+
+/***/ },
+/* 234 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(235);
+
+	var MessageItem = React.createClass({
+	  displayName: 'MessageItem',
+
+	  render: function render() {
+	    var rs = this.props.rs;
+	    var content = this.props.content;
+	    var avatar = this.props.avatar;
+
+	    return React.createElement(
+	      'li',
+	      { className: styles[rs] },
+	      React.createElement('img', { className: styles.avatar, src: "img/avatar" + avatar + ".svg" }),
+	      React.createElement(
+	        'p',
+	        { className: styles.content },
+	        content
+	      )
+	    );
+	  }
+	});
+
+	module.exports = MessageItem;
+
+/***/ },
+/* 235 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(236);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./MessageItem.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 236 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._16-k8Xcb21zA5m33eHZLBu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex; }\n\n._3fI-71l4AqWr_6NIDGJRyd {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse; }\n\n._1e_0XZdHJ3bhBscXN5Okwx {\n  width: 35px;\n  height: 35px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0; }\n\n._3pwXoj9L13GPfKoncM_Kvb {\n  margin: 16px 5px;\n  padding: 10px;\n  border-radius: 6px;\n  word-break: break-word; }\n\n._16-k8Xcb21zA5m33eHZLBu ._3pwXoj9L13GPfKoncM_Kvb {\n  border: 1px solid #ccc; }\n\n._3fI-71l4AqWr_6NIDGJRyd ._3pwXoj9L13GPfKoncM_Kvb {\n  color: #fff;\n  background-color: #18b4ed;\n  border: 1px solid #18b4ed; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"receive": "_16-k8Xcb21zA5m33eHZLBu",
+		"send": "_3fI-71l4AqWr_6NIDGJRyd",
+		"avatar": "_1e_0XZdHJ3bhBscXN5Okwx",
+		"content": "_3pwXoj9L13GPfKoncM_Kvb"
+	};
+
+/***/ },
+/* 237 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(215);
+
+	var addRoom = {
+	  emitAddRoom: function emitAddRoom(data) {
+	    var action = {
+	      actionType: "ADDROOM",
+	      data: data
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = addRoom;
 
 /***/ }
 /******/ ]);
