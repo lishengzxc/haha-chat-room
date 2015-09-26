@@ -5,6 +5,7 @@ var colors = require('../../util/color');
 
 var enterRoom = require('../../actions/enterRoom');
 
+var Store = require('../../stores/stores');
 
 var RoomItem = React.createClass({
 
@@ -17,6 +18,11 @@ var RoomItem = React.createClass({
       }
     }
     nowRoomId = this.props.id;
+
+    socket.emit('enterRoom', {
+      name: Store.getName(),
+      id: nowRoomId
+    });
   },
 
   render: function () {

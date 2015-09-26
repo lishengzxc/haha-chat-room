@@ -52,7 +52,7 @@
 
 	var Store = __webpack_require__(208);
 
-	var addRoom = __webpack_require__(244);
+	var addRoom = __webpack_require__(267);
 
 	Router.run(routes, Router.HashLocation, function (Root) {
 	  React.render(React.createElement(Root, null), document.body);
@@ -23564,7 +23564,7 @@
 	var NowRoom = __webpack_require__(217);
 	var AllRoom = __webpack_require__(225);
 	var Me = __webpack_require__(228);
-	var ChatRoom = __webpack_require__(238);
+	var ChatRoom = __webpack_require__(239);
 
 	var routes = React.createElement(
 	  Route,
@@ -25068,6 +25068,8 @@
 
 	var enterRoom = __webpack_require__(224);
 
+	var Store = __webpack_require__(208);
+
 	var RoomItem = React.createClass({
 	  displayName: 'RoomItem',
 
@@ -25080,6 +25082,11 @@
 	      }
 	    }
 	    nowRoomId = this.props.id;
+
+	    socket.emit('enterRoom', {
+	      name: Store.getName(),
+	      id: nowRoomId
+	    });
 	  },
 
 	  render: function render() {
@@ -25319,7 +25326,7 @@
 	var getSexValue = Store.getSex;
 	var getNameValue = Store.getName;
 
-	var changeName = __webpack_require__(245);
+	var changeName = __webpack_require__(238);
 
 	var Me = React.createClass({
 	  displayName: 'Me',
@@ -25653,12 +25660,34 @@
 /* 238 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(209);
+
+	var changeName = {
+	  emitChangeName: function emitChangeName(data) {
+	    var action = {
+	      actionType: "CHANGENAME",
+	      data: data
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = changeName;
+
+/***/ },
+/* 239 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(239);
+	var styles = __webpack_require__(240);
 
-	var MessageItem = __webpack_require__(241);
+	var MessageItem = __webpack_require__(242);
+	var Toast = __webpack_require__(246);
 
 	var Store = __webpack_require__(208);
 	var getSexValue = Store.getSex;
@@ -25696,6 +25725,10 @@
 	          messages: messages
 	        }, that.scroll);
 	      }
+	    });
+
+	    socket.on('enter:' + nowRoomId, function (data) {
+	      Toast.show(data.name);
 	    });
 	  },
 
@@ -25774,13 +25807,13 @@
 	module.exports = ChatRoom;
 
 /***/ },
-/* 239 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(240);
+	var content = __webpack_require__(241);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25800,7 +25833,7 @@
 	}
 
 /***/ },
-/* 240 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25819,15 +25852,15 @@
 	};
 
 /***/ },
-/* 241 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(242);
+	var styles = __webpack_require__(243);
 
-	var cn = __webpack_require__(246);
+	var cn = __webpack_require__(245);
 
 	var MessageItem = React.createClass({
 	  displayName: 'MessageItem',
@@ -25863,13 +25896,13 @@
 	module.exports = MessageItem;
 
 /***/ },
-/* 242 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(243);
+	var content = __webpack_require__(244);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25889,7 +25922,7 @@
 	}
 
 /***/ },
-/* 243 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25911,49 +25944,7 @@
 	};
 
 /***/ },
-/* 244 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var AppDispatcher = __webpack_require__(209);
-
-	var addRoom = {
-	  emitAddRoom: function emitAddRoom(data) {
-	    var action = {
-	      actionType: "ADDROOM",
-	      data: data
-	    };
-
-	    AppDispatcher.dispatch(action);
-	  }
-	};
-
-	module.exports = addRoom;
-
-/***/ },
 /* 245 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	var AppDispatcher = __webpack_require__(209);
-
-	var changeName = {
-	  emitChangeName: function emitChangeName(data) {
-	    var action = {
-	      actionType: "CHANGENAME",
-	      data: data
-	    };
-
-	    AppDispatcher.dispatch(action);
-	  }
-	};
-
-	module.exports = changeName;
-
-/***/ },
-/* 246 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -26006,6 +25997,136 @@
 
 	}());
 
+
+/***/ },
+/* 246 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(265);
+
+	var Toast = React.createClass({
+	  displayName: 'Toast',
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    document.body.removeChild(document.querySelector('.toast'));
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: styles.toast },
+	      this.props.content
+	    );
+	  }
+
+	});
+
+	Toast.timer;
+
+	Toast.show = function (content) {
+	  if (document.querySelector('.toast')) {
+	    Toast.hide();
+	  }
+
+	  var toast = document.createElement('div');
+	  toast.className = 'toast';
+	  document.body.appendChild(toast);
+	  React.render(React.createElement(Toast, { content: content + ' 进入房间~' }), document.querySelector('.toast'));
+	  Toast.timer = setTimeout(function () {
+	    Toast.hide();
+	  }, 2000);
+	};
+
+	Toast.hide = function () {
+	  clearTimeout(Toast.timer);
+	  React.unmountComponentAtNode(document.querySelector('.toast'));
+	};
+
+	module.exports = Toast;
+
+/***/ },
+/* 247 */,
+/* 248 */,
+/* 249 */,
+/* 250 */,
+/* 251 */,
+/* 252 */,
+/* 253 */,
+/* 254 */,
+/* 255 */,
+/* 256 */,
+/* 257 */,
+/* 258 */,
+/* 259 */,
+/* 260 */,
+/* 261 */,
+/* 262 */,
+/* 263 */,
+/* 264 */,
+/* 265 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(266);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Toast.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./Toast.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 266 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1opWBb8GThltH2HnvEUcpS {\n  position: fixed;\n  top: 0;\n  left: 50%;\n  -webkit-transform: translate(-50%, 0);\n      -ms-transform: translate(-50%, 0);\n          transform: translate(-50%, 0);\n  width: 70%;\n  height: 40px;\n  line-height: 40px;\n  text-align: center;\n  background-color: rgba(0, 0, 0, 0.7);\n  border-radius: 0 0 6px 6px;\n  color: #ccc; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"toast": "_1opWBb8GThltH2HnvEUcpS"
+	};
+
+/***/ },
+/* 267 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(209);
+
+	var addRoom = {
+	  emitAddRoom: function emitAddRoom(data) {
+	    var action = {
+	      actionType: "ADDROOM",
+	      data: data
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = addRoom;
 
 /***/ }
 /******/ ]);
