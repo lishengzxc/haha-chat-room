@@ -3,16 +3,40 @@ var styles = require('./TopBar.scss');
 
 var CreateRoom = require('../CreateRoom/CreateRoom');
 
+var Store = require('../../stores/stores');
+var getSexValue = Store.getSex;
+
 var TopBar = React.createClass({
+
+  getInitialState: function () {
+    return {
+      sex: getSexValue()
+    }
+  },
+
+  componentDidMount: function () {
+    Store.addChangeListener(this.onChangeSex);
+  },
+
+  componentWillUnmount: function () {
+    Store.removeChangeListener(this.onChangeSex);
+  },
+
+  onChangeSex: function () {
+    this.setState({
+      sex: Store.getSex()
+    });
+  },
 
   showCreateRoomPage: function () {
     CreateRoom.show();
   },
 
   render: function () {
+    var sex = this.state.sex ? '2' : '1';
     return (
       <header className={styles.header}>
-        <img className={styles.avatar} src="img/avatar1.svg" />
+        <img className={styles.avatar} src={"img/avatar" + sex + ".svg"} />
         <div className={styles.title}>
           {
             {

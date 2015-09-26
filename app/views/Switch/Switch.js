@@ -5,7 +5,7 @@ var Switch = React.createClass({
 
   getInitialState: function () {
     return {
-      check: false
+      check: this.props.check
     }
   },
 

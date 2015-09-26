@@ -50,9 +50,9 @@
 	var Router = __webpack_require__(157);
 	var routes = __webpack_require__(196);
 
-	var Store = __webpack_require__(214);
+	var Store = __webpack_require__(208);
 
-	var addRoom = __webpack_require__(243);
+	var addRoom = __webpack_require__(244);
 
 	Router.run(routes, Router.HashLocation, function (Root) {
 	  React.render(React.createElement(Root, null), document.body);
@@ -60,7 +60,6 @@
 
 	socket.on('addRoomOK', function (data) {
 	  addRoom.emitAddRoom(data);
-	  console.log(Store.getAllRoomList());
 	});
 
 /***/ },
@@ -23562,10 +23561,10 @@
 	var Route = Router.Route;
 
 	var App = __webpack_require__(197);
-	var NowRoom = __webpack_require__(211);
+	var NowRoom = __webpack_require__(217);
 	var AllRoom = __webpack_require__(225);
 	var Me = __webpack_require__(228);
-	var ChatRoom = __webpack_require__(237);
+	var ChatRoom = __webpack_require__(238);
 
 	var routes = React.createElement(
 	  Route,
@@ -23589,7 +23588,7 @@
 	var styles = __webpack_require__(198);
 
 	var TopBar = __webpack_require__(202);
-	var FootBar = __webpack_require__(208);
+	var FootBar = __webpack_require__(214);
 
 	var RouteHandler = Router.RouteHandler;
 
@@ -23947,18 +23946,42 @@
 
 	var CreateRoom = __webpack_require__(205);
 
+	var Store = __webpack_require__(208);
+	var getSexValue = Store.getSex;
+
 	var TopBar = React.createClass({
 	  displayName: 'TopBar',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      sex: getSexValue()
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onChangeSex);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onChangeSex);
+	  },
+
+	  onChangeSex: function onChangeSex() {
+	    this.setState({
+	      sex: Store.getSex()
+	    });
+	  },
 
 	  showCreateRoomPage: function showCreateRoomPage() {
 	    CreateRoom.show();
 	  },
 
 	  render: function render() {
+	    var sex = this.state.sex ? '2' : '1';
 	    return React.createElement(
 	      'header',
 	      { className: styles.header },
-	      React.createElement('img', { className: styles.avatar, src: 'img/avatar1.svg' }),
+	      React.createElement('img', { className: styles.avatar, src: "img/avatar" + sex + ".svg" }),
 	      React.createElement(
 	        'div',
 	        { className: styles.title },
@@ -24139,194 +24162,8 @@
 
 	'use strict';
 
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(209);
-
-	var FootBar = React.createClass({
-	  displayName: 'FootBar',
-
-	  render: function render() {
-	    var visibility = this.props.status === 'chat' ? 'none' : 'flex';
-	    return React.createElement(
-	      'footer',
-	      { className: styles.footer, style: { 'display': visibility } },
-	      React.createElement(
-	        'i',
-	        { className: styles.item },
-	        React.createElement(
-	          'a',
-	          { href: '#/now' },
-	          React.createElement('span', { className: 'fa fa-comment' })
-	        )
-	      ),
-	      React.createElement(
-	        'i',
-	        { className: styles.item },
-	        React.createElement(
-	          'a',
-	          { href: '#/all' },
-	          React.createElement('span', { className: 'fa fa-compass' })
-	        )
-	      ),
-	      React.createElement(
-	        'i',
-	        { className: styles.item },
-	        React.createElement(
-	          'a',
-	          { href: '#/me' },
-	          React.createElement('span', { className: 'fa fa-user' })
-	        )
-	      )
-	    );
-	  }
-	});
-
-	module.exports = FootBar;
-
-/***/ },
-/* 209 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(210);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./FootBar.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./FootBar.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 210 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._1NK5pgHG35WF5rPzDH05Qa {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 55px;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.12);\n  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f9f9f9), to(#e0e0e0));\n  color: #00a5e0; }\n\n.YU9krnaD0-DuyCEiEdsQH {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  font-size: 24px;\n  -webkit-box-flex: 1;\n  -webkit-flex-grow: 1;\n      -ms-flex-positive: 1;\n          flex-grow: 1;\n  border-top: 1px solid #ccc;\n  border-right: 1px solid #ccc; }\n  .YU9krnaD0-DuyCEiEdsQH:last-of-type {\n    border-right: none; }\n", ""]);
-
-	// exports
-	exports.locals = {
-		"footer": "_1NK5pgHG35WF5rPzDH05Qa",
-		"item": "YU9krnaD0-DuyCEiEdsQH"
-	};
-
-/***/ },
-/* 211 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var React = __webpack_require__(1);
-	var styles = __webpack_require__(212);
-
-	var Store = __webpack_require__(214);
-
-	var getNowRoom = function getNowRoom() {
-	  return Store.getNowRoomList();
-	};
-
-	var RoomItem = __webpack_require__(220);
-
-	var NowRoom = React.createClass({
-	  displayName: 'NowRoom',
-
-	  getInitialState: function getInitialState() {
-	    return {
-	      nowRoomList: getNowRoom()
-	    };
-	  },
-
-	  componentDidMount: function componentDidMount() {
-	    Store.addChangeListener(this.onAddRoom);
-	  },
-
-	  componentWillUnmount: function componentWillUnmount() {
-	    Store.removeChangeListener(this.onAddRoom);
-	  },
-
-	  onAddRoom: function onAddRoom() {
-	    this.setState({
-	      nowRoomList: getNowRoom()
-	    });
-	  },
-
-	  render: function render() {
-	    return React.createElement(
-	      'ul',
-	      null,
-	      this.state.nowRoomList.map(function (result, index) {
-	        return React.createElement(RoomItem, { key: index, name: result.name, id: result.id });
-	      })
-	    );
-	  }
-	});
-
-	module.exports = NowRoom;
-
-/***/ },
-/* 212 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(213);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(201)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./NowRoom.scss", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./NowRoom.scss");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 213 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(200)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "", ""]);
-
-	// exports
-
-
-/***/ },
-/* 214 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var AppDispatcher = __webpack_require__(215);
-	var EventEmitter = __webpack_require__(219).EventEmitter;
+	var AppDispatcher = __webpack_require__(209);
+	var EventEmitter = __webpack_require__(213).EventEmitter;
 
 	function assign(target) {
 	  for (var _len = arguments.length, sources = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -24344,6 +24181,8 @@
 
 	var nowRoomList = [];
 	var allRoomList = [];
+	var sex = false;
+	var name = '2333';
 
 	var Store = assign({}, EventEmitter.prototype, {
 	  emitChange: function emitChange() {
@@ -24364,6 +24203,14 @@
 
 	  getNowRoomList: function getNowRoomList() {
 	    return nowRoomList;
+	  },
+
+	  getSex: function getSex() {
+	    return sex;
+	  },
+
+	  getName: function getName() {
+	    return name;
 	  }
 	});
 
@@ -24381,7 +24228,16 @@
 	      });
 	      tmpList.push(action.data);
 	      nowRoomList = tmpList;
+	      Store.emitChange();
+	      break;
 
+	    case 'CHANGESEX':
+	      sex = !sex;
+	      Store.emitChange();
+	      break;
+
+	    case 'CHANGENAME':
+	      name = action.data;
 	      Store.emitChange();
 	      break;
 	  }
@@ -24390,16 +24246,16 @@
 	module.exports = Store;
 
 /***/ },
-/* 215 */
+/* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var Dispatcher = __webpack_require__(216).Dispatcher;
+	var Dispatcher = __webpack_require__(210).Dispatcher;
 	module.exports = new Dispatcher();
 
 /***/ },
-/* 216 */
+/* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -24411,11 +24267,11 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 
-	module.exports.Dispatcher = __webpack_require__(217);
+	module.exports.Dispatcher = __webpack_require__(211);
 
 
 /***/ },
-/* 217 */
+/* 211 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -24437,7 +24293,7 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-	var invariant = __webpack_require__(218);
+	var invariant = __webpack_require__(212);
 
 	var _prefix = 'ID_';
 
@@ -24652,7 +24508,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 218 */
+/* 212 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -24707,7 +24563,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
 
 /***/ },
-/* 219 */
+/* 213 */
 /***/ function(module, exports) {
 
 	// Copyright Joyent, Inc. and other Node contributors.
@@ -25014,6 +24870,192 @@
 
 
 /***/ },
+/* 214 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(215);
+
+	var FootBar = React.createClass({
+	  displayName: 'FootBar',
+
+	  render: function render() {
+	    var visibility = this.props.status === 'chat' ? 'none' : 'flex';
+	    return React.createElement(
+	      'footer',
+	      { className: styles.footer, style: { 'display': visibility } },
+	      React.createElement(
+	        'i',
+	        { className: styles.item },
+	        React.createElement(
+	          'a',
+	          { href: '#/now' },
+	          React.createElement('span', { className: 'fa fa-comment' })
+	        )
+	      ),
+	      React.createElement(
+	        'i',
+	        { className: styles.item },
+	        React.createElement(
+	          'a',
+	          { href: '#/all' },
+	          React.createElement('span', { className: 'fa fa-compass' })
+	        )
+	      ),
+	      React.createElement(
+	        'i',
+	        { className: styles.item },
+	        React.createElement(
+	          'a',
+	          { href: '#/me' },
+	          React.createElement('span', { className: 'fa fa-user' })
+	        )
+	      )
+	    );
+	  }
+	});
+
+	module.exports = FootBar;
+
+/***/ },
+/* 215 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(216);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./FootBar.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./FootBar.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 216 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._1NK5pgHG35WF5rPzDH05Qa {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  position: fixed;\n  bottom: 0;\n  left: 0;\n  right: 0;\n  height: 55px;\n  box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.12);\n  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f9f9f9), to(#e0e0e0));\n  color: #00a5e0; }\n\n.YU9krnaD0-DuyCEiEdsQH {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  -webkit-box-align: center;\n  -webkit-align-items: center;\n      -ms-flex-align: center;\n          align-items: center;\n  font-size: 24px;\n  -webkit-box-flex: 1;\n  -webkit-flex-grow: 1;\n      -ms-flex-positive: 1;\n          flex-grow: 1;\n  border-top: 1px solid #ccc;\n  border-right: 1px solid #ccc; }\n  .YU9krnaD0-DuyCEiEdsQH:last-of-type {\n    border-right: none; }\n", ""]);
+
+	// exports
+	exports.locals = {
+		"footer": "_1NK5pgHG35WF5rPzDH05Qa",
+		"item": "YU9krnaD0-DuyCEiEdsQH"
+	};
+
+/***/ },
+/* 217 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var React = __webpack_require__(1);
+	var styles = __webpack_require__(218);
+
+	var Store = __webpack_require__(208);
+
+	var getNowRoom = function getNowRoom() {
+	  return Store.getNowRoomList();
+	};
+
+	var RoomItem = __webpack_require__(220);
+
+	var NowRoom = React.createClass({
+	  displayName: 'NowRoom',
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      nowRoomList: getNowRoom()
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onAddRoom);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onAddRoom);
+	  },
+
+	  onAddRoom: function onAddRoom() {
+	    this.setState({
+	      nowRoomList: getNowRoom()
+	    });
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'ul',
+	      null,
+	      this.state.nowRoomList.map(function (result, index) {
+	        return React.createElement(RoomItem, { key: index, name: result.name, id: result.id });
+	      })
+	    );
+	  }
+	});
+
+	module.exports = NowRoom;
+
+/***/ },
+/* 218 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(219);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(201)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./NowRoom.scss", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules!./../../../node_modules/autoprefixer-loader/index.js!./../../../node_modules/sass-loader/index.js!./NowRoom.scss");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 219 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(200)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "", ""]);
+
+	// exports
+
+
+/***/ },
 /* 220 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -25155,7 +25197,7 @@
 
 	"use strict";
 
-	var AppDispatcher = __webpack_require__(215);
+	var AppDispatcher = __webpack_require__(209);
 
 	var enterRoom = {
 	  emitEnterRoom: function emitEnterRoom(data) {
@@ -25179,7 +25221,7 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(226);
 
-	var Store = __webpack_require__(214);
+	var Store = __webpack_require__(208);
 
 	var getAllRoom = function getAllRoom() {
 	  return Store.getAllRoomList();
@@ -25274,18 +25316,74 @@
 
 	var SexSwitch = __webpack_require__(231);
 
+	var Store = __webpack_require__(208);
+	var getSexValue = Store.getSex;
+	var getNameValue = Store.getName;
+
 	var Me = React.createClass({
 	  displayName: 'Me',
 
+	  getInitialState: function getInitialState() {
+	    return {
+	      sex: getSexValue(),
+	      inputDisplay: false
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onChangeSex);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onChangeSex);
+	  },
+
+	  onChangeSex: function onChangeSex() {
+	    this.setState({
+	      sex: Store.getSex()
+	    });
+	  },
+
+	  showEdit: function showEdit() {
+	    this.setState({
+	      inputDisplay: !this.state.inputDisplay
+	    });
+	  },
+
+	  changeName: function changeName(event) {
+	    event.preventDefault();
+	    this.setState({
+	      inputDisplay: !this.state.inputDisplay
+	    });
+	  },
+
 	  render: function render() {
+	    var sex = this.state.sex ? '2' : '1';
+	    var isEdit = this.state.inputDisplay ? 'flex' : 'none';
 	    return React.createElement(
 	      'div',
 	      { className: styles.me },
-	      React.createElement('img', { src: 'img/avatar1.svg' }),
+	      React.createElement('img', { src: "img/avatar" + sex + ".svg" }),
 	      React.createElement(
 	        'p',
-	        { className: styles.name },
-	        '2333'
+	        { onClick: this.showEdit, className: styles.name, style: {
+	            display: this.state.inputDisplay ? 'none' : 'block'
+	          } },
+	        getNameValue(),
+	        ' ',
+	        React.createElement('i', { className: "fa fa-pencil-square-o " + styles.edit })
+	      ),
+	      React.createElement(
+	        'form',
+	        { className: styles.inputgroup, style: {
+	            display: isEdit
+	          }, onSubmit: this.changeName },
+	        React.createElement('input', { className: styles.nameinput, type: 'text', defaultValue: getNameValue() }),
+	        React.createElement(
+	          'button',
+	          { className: styles.submit, type: 'submit' },
+	          React.createElement('i', { className: 'fa fa-check' })
+	        )
 	      ),
 	      React.createElement(SexSwitch, null)
 	    );
@@ -25329,12 +25427,16 @@
 
 
 	// module
-	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px 20px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  font-size: 20px;\n  text-align: center; }\n", ""]);
+	exports.push([module.id, "._1vpdxiIKre-pXRwx8LVtQC {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-align-content: center;\n      -ms-flex-line-pack: center;\n          align-content: center;\n  padding: 30px 20px; }\n\n.goZ0uzJ4MMuyw0_65xoZa {\n  position: relative;\n  height: 40px;\n  line-height: 40px;\n  font-size: 20px;\n  text-align: center; }\n\n._1luvvp_8_CrLSDMzCPPmG {\n  position: absolute;\n  right: 15px;\n  top: 50%;\n  -webkit-transform: translateY(-50%);\n      -ms-transform: translateY(-50%);\n          transform: translateY(-50%);\n  cursor: pointer; }\n\n._1i-uIQHSUb_n-tad_lClfb {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-pack: center;\n  -webkit-justify-content: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n  margin: 20px 0; }\n\n._3Q_oxlzw8MhF8hcdBRNUMR {\n  padding-left: 10px;\n  height: 40px;\n  border-radius: 3px 0 0 3px;\n  border: 1px solid #ccc;\n  border-right: none;\n  text-align: center; }\n\n.lYvyOw8SD3z_yvhPBkr_8 {\n  color: #fff;\n  height: 40px;\n  width: 40px;\n  font-size: 14px;\n  border: 1px solid #44CC6E;\n  background-color: #44CC6E;\n  border-radius: 0 3px 3px 0; }\n", ""]);
 
 	// exports
 	exports.locals = {
 		"me": "_1vpdxiIKre-pXRwx8LVtQC",
-		"name": "goZ0uzJ4MMuyw0_65xoZa"
+		"name": "goZ0uzJ4MMuyw0_65xoZa",
+		"edit": "_1luvvp_8_CrLSDMzCPPmG",
+		"inputgroup": "_1i-uIQHSUb_n-tad_lClfb",
+		"nameinput": "_3Q_oxlzw8MhF8hcdBRNUMR",
+		"submit": "lYvyOw8SD3z_yvhPBkr_8"
 	};
 
 /***/ },
@@ -25348,10 +25450,36 @@
 
 	var Switch = __webpack_require__(234);
 
+	var changeSex = __webpack_require__(237);
+	var Store = __webpack_require__(208);
+	var getSexValue = Store.getSex;
+
 	var SexSwitch = React.createClass({
 	  displayName: 'SexSwitch',
 
-	  getSex: function getSex() {},
+	  getInitialState: function getInitialState() {
+	    return {
+	      sex: getSexValue()
+	    };
+	  },
+
+	  componentDidMount: function componentDidMount() {
+	    Store.addChangeListener(this.onChangeSex);
+	  },
+
+	  componentWillUnmount: function componentWillUnmount() {
+	    Store.removeChangeListener(this.onChangeSex);
+	  },
+
+	  getSex: function getSex() {
+	    changeSex.emitChangeSex();
+	  },
+
+	  onChangeSex: function onChangeSex() {
+	    this.setState({
+	      sex: Store.getSex()
+	    });
+	  },
 
 	  render: function render() {
 	    return React.createElement(
@@ -25360,9 +25488,9 @@
 	      React.createElement(
 	        'p',
 	        { className: styles.content },
-	        '男生'
+	        this.state.sex ? '女生' : '男生'
 	      ),
-	      React.createElement(Switch, { ref: 'switch' })
+	      React.createElement(Switch, { ref: 'switch', check: this.state.sex })
 	    );
 	  }
 	});
@@ -25426,7 +25554,7 @@
 
 	  getInitialState: function getInitialState() {
 	    return {
-	      check: false
+	      check: this.props.check
 	    };
 	  },
 
@@ -25494,12 +25622,35 @@
 /* 237 */
 /***/ function(module, exports, __webpack_require__) {
 
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(209);
+
+	var changeSex = {
+	  emitChangeSex: function emitChangeSex() {
+	    var action = {
+	      actionType: "CHANGESEX"
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = changeSex;
+
+/***/ },
+/* 238 */
+/***/ function(module, exports, __webpack_require__) {
+
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(238);
+	var styles = __webpack_require__(239);
 
-	var MessageItem = __webpack_require__(240);
+	var MessageItem = __webpack_require__(241);
+
+	var Store = __webpack_require__(208);
+	var getSexValue = Store.getSex;
 
 	var ChatRoom = React.createClass({
 	  displayName: 'ChatRoom',
@@ -25516,13 +25667,15 @@
 	    var that = this;
 	    socket.on('receiveMessage:' + nowRoomId, function (data) {
 	      if (that.time !== data.time) {
-	        console.log(that.time, data.time);
+
 	        var message = data.message;
+	        var sex = data.sex;
+
 	        var messages = that.state.messages;
 	        messages.push({
 	          rs: 'receive',
 	          content: message,
-	          avatar: 2
+	          sex: sex
 	        });
 
 	        that.setState({
@@ -25541,17 +25694,19 @@
 	    if (!message) return;
 
 	    var messages = this.state.messages;
+	    var sex = getSexValue() ? '2' : '1';
+
 	    messages.push({
 	      rs: 'send',
 	      content: message,
-	      avatar: 1
+	      sex: sex
 	    });
 
 	    this.setState({
 	      messages: messages
 	    }, this.scroll);
 
-	    socket.emit('sendMessage', { message: message, id: nowRoomId, time: this.time });
+	    socket.emit('sendMessage', { message: message, id: nowRoomId, time: this.time, sex: sex });
 
 	    this.refs.message.getDOMNode().value = '';
 	  },
@@ -25583,7 +25738,7 @@
 	        'ul',
 	        { className: styles.chatlist, ref: 'ul' },
 	        messages.map(function (result, index) {
-	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.avatar, key: index });
+	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.sex, key: index });
 	        })
 	      ),
 	      React.createElement(
@@ -25603,13 +25758,13 @@
 	module.exports = ChatRoom;
 
 /***/ },
-/* 238 */
+/* 239 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(239);
+	var content = __webpack_require__(240);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25629,7 +25784,7 @@
 	}
 
 /***/ },
-/* 239 */
+/* 240 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25648,13 +25803,13 @@
 	};
 
 /***/ },
-/* 240 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(1);
-	var styles = __webpack_require__(241);
+	var styles = __webpack_require__(242);
 
 	var MessageItem = React.createClass({
 	  displayName: 'MessageItem',
@@ -25680,13 +25835,13 @@
 	module.exports = MessageItem;
 
 /***/ },
-/* 241 */
+/* 242 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(242);
+	var content = __webpack_require__(243);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(201)(content, {});
@@ -25706,7 +25861,7 @@
 	}
 
 /***/ },
-/* 242 */
+/* 243 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(200)();
@@ -25725,12 +25880,12 @@
 	};
 
 /***/ },
-/* 243 */
+/* 244 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var AppDispatcher = __webpack_require__(215);
+	var AppDispatcher = __webpack_require__(209);
 
 	var addRoom = {
 	  emitAddRoom: function emitAddRoom(data) {

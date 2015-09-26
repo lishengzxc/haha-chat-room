@@ -1,10 +1,9 @@
 var AppDispatcher = require('../dispatcher/app-dispatcher');
 
 var changeSex = {
-  emitChangeSex: function (data) {
+  emitChangeSex: function () {
     var action = {
-      actionType: "CHANGESEX",
-      data: data
+      actionType: "CHANGESEX"
     };
 
     AppDispatcher.dispatch(action);

@@ -11,6 +11,7 @@ io.sockets.on('connection', function (socket) {
   });
 
   socket.on('sendMessage', function (data) {
+    console.log(data);
     io.sockets.emit('receiveMessage:' + data.id, data);
   });
 

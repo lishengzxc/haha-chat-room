@@ -3,6 +3,9 @@ var styles = require('./ChatRoom.scss');
 
 var MessageItem = require('../MessageItem/MessageItem');
 
+var Store = require('../../stores/stores');
+var getSexValue = Store.getSex;
+
 var ChatRoom = React.createClass({
 
   time: new Date().getTime(),
@@ -17,13 +20,15 @@ var ChatRoom = React.createClass({
     var that = this;
     socket.on('receiveMessage:' + nowRoomId, function (data) {
       if (that.time !== data.time) {
-        console.log(that.time, data.time);
+
         var message = data.message;
+        var sex = data.sex;
+
         var messages = that.state.messages;
         messages.push({
           rs: 'receive',
           content: message,
-          avatar: 2
+          sex: sex
         });
 
         that.setState({
@@ -43,17 +48,19 @@ var ChatRoom = React.createClass({
     if (!message) return;
 
     var messages = this.state.messages;
+    var sex = getSexValue() ? '2' : '1';
+
     messages.push({
       rs: 'send',
       content: message,
-      avatar: 1
+      sex: sex
     });
 
     this.setState({
       messages: messages
     }, this.scroll);
 
-    socket.emit('sendMessage', {message: message, id: nowRoomId, time: this.time});
+    socket.emit('sendMessage', {message: message, id: nowRoomId, time: this.time, sex: sex});
 
     this.refs.message.getDOMNode().value = '';
 
@@ -85,7 +92,7 @@ var ChatRoom = React.createClass({
       <div className={styles.chatroom}>
         <ul className={styles.chatlist} ref="ul">
         {
-          messages.map((result, index) => <MessageItem rs={result.rs} content={result.content} avatar={result.avatar} key={index} />)
+          messages.map((result, index) => <MessageItem rs={result.rs} content={result.content} avatar={result.sex} key={index} />)
           }
         </ul>
         <form className={styles.inputgroup} onSubmit={this.submit}>

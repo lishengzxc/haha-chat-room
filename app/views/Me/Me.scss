@@ -6,6 +6,42 @@
 }
 
 :local(.name) {
+  position: relative;
+  height: 40px;
+  line-height: 40px;
   font-size: 20px;
   text-align: center;
+}
+
+:local(.edit) {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+:local(.inputgroup) {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+:local(.nameinput) {
+  padding-left: 10px;
+  height: 40px;
+  border-radius: 3px 0 0 3px;
+  border: 1px solid #ccc;
+  border-right: none;
+  text-align: center;
+}
+
+:local(.submit) {
+  color: #fff;
+  height: 40px;
+  width: 40px;
+  font-size: 14px;
+  border: 1px solid #44CC6E;
+  background-color: #44CC6E;
+  border-radius: 0 3px 3px 0;
 }

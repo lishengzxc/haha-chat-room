@@ -13,5 +13,4 @@ Router.run(routes, Router.HashLocation, (Root) => {
 
 socket.on('addRoomOK', function (data) {
   addRoom.emitAddRoom(data);
-  console.log(Store.getAllRoomList());
 });

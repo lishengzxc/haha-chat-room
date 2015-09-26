@@ -14,6 +14,8 @@ function assign(target, ...sources) {
 
 var nowRoomList = [];
 var allRoomList = [];
+var sex = false;
+var name = '2333';
 
 var Store = assign({}, EventEmitter.prototype, {
   emitChange: function () {
@@ -34,6 +36,14 @@ var Store = assign({}, EventEmitter.prototype, {
 
   getNowRoomList: function () {
     return nowRoomList;
+  },
+
+  getSex: function () {
+    return sex
+  },
+
+  getName: function () {
+    return name
   }
 });
 
@@ -51,7 +61,16 @@ AppDispatcher.register(function (action) {
       });
       tmpList.push(action.data);
       nowRoomList = tmpList;
+      Store.emitChange();
+      break;
 
+    case 'CHANGESEX':
+      sex = !sex;
+      Store.emitChange();
+      break;
+
+    case 'CHANGENAME':
+      name = action.data;
       Store.emitChange();
       break;
   }
