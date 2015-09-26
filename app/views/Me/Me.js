@@ -7,21 +7,26 @@ var Store = require('../../stores/stores');
 var getSexValue = Store.getSex;
 var getNameValue = Store.getName;
 
+var changeName = require('../../actions/changeName');
+
 var Me = React.createClass({
 
   getInitialState: function () {
     return {
       sex: getSexValue(),
-      inputDisplay: false
+      inputDisplay: false,
+      name: getNameValue()
     }
   },
 
   componentDidMount: function () {
     Store.addChangeListener(this.onChangeSex);
+    Store.addChangeListener(this.onChangeName);
   },
 
   componentWillUnmount: function () {
     Store.removeChangeListener(this.onChangeSex);
+    Store.removeChangeListener(this.onChangeName);
   },
 
   onChangeSex: function () {
@@ -30,14 +35,21 @@ var Me = React.createClass({
     });
   },
 
+  onChangeName: function () {
+    this.setState({
+      name: getNameValue()
+    })
+  },
+
   showEdit: function () {
     this.setState({
       inputDisplay: !this.state.inputDisplay
     });
   },
 
-  changeName: function (event) {
+  changeNameValue: function (event) {
     event.preventDefault();
+    changeName.emitChangeName(this.refs.name.getDOMNode().value);
     this.setState({
       inputDisplay: !this.state.inputDisplay
     });
@@ -51,11 +63,11 @@ var Me = React.createClass({
         <img src={"img/avatar" + sex + ".svg"} />
         <p onClick={this.showEdit} className={styles.name} style={{
           display: this.state.inputDisplay ? 'none' : 'block'
-        }}>{getNameValue()} <i className={"fa fa-pencil-square-o " + styles.edit}></i></p>
+        }}>{this.state.name} <i className={"fa fa-pencil-square-o " + styles.edit}></i></p>
         <form className={styles.inputgroup} style={{
           display: isEdit
-        }} onSubmit={this.changeName}>
-          <input className={styles.nameinput} type="text" defaultValue={getNameValue()} />
+        }} onSubmit={this.changeNameValue}>
+          <input className={styles.nameinput} type="text" defaultValue={this.state.name} ref="name"/>
           <button className={styles.submit} type="submit"><i className="fa fa-check"></i></button>
         </form>
         <SexSwitch />

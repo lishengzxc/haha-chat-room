@@ -1,10 +1,21 @@
-:local(.receive) {
+:local(.li) {
   display: flex;
+  flex-direction: column;
+}
+
+:local(.receive) {
+  align-items: flex-start;
+  .div {
+    display: flex;
+  }
 }
 
 :local(.send) {
-  display: flex;
-  flex-direction: row-reverse;
+  align-items: flex-end;
+  .div {
+    display: flex;
+    flex-direction: row-reverse;
+  }
 }
 
 :local(.avatar) {
@@ -28,4 +39,10 @@
   color: #fff;
   background-color: #18b4ed;
   border: 1px solid #18b4ed;
+}
+
+:local(.small) {
+  font-size: 12px;
+  color: #ccc;
+  margin-bottom: 5px;
 }

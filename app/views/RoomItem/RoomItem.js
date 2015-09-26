@@ -11,7 +11,6 @@ var RoomItem = React.createClass({
   chooseRoom: function (event) {
     if (window.location.hash.substr(2) === 'all') {
       if (confirm('确认要进入这个房间吗？')) {
-        console.log(this.props);
         enterRoom.emitEnterRoom(this.props);
       } else {
         return event.preventDefault()

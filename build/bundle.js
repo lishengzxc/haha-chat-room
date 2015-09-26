@@ -25074,7 +25074,6 @@
 	  chooseRoom: function chooseRoom(event) {
 	    if (window.location.hash.substr(2) === 'all') {
 	      if (confirm('确认要进入这个房间吗？')) {
-	        console.log(this.props);
 	        enterRoom.emitEnterRoom(this.props);
 	      } else {
 	        return event.preventDefault();
@@ -25320,27 +25319,38 @@
 	var getSexValue = Store.getSex;
 	var getNameValue = Store.getName;
 
+	var changeName = __webpack_require__(245);
+
 	var Me = React.createClass({
 	  displayName: 'Me',
 
 	  getInitialState: function getInitialState() {
 	    return {
 	      sex: getSexValue(),
-	      inputDisplay: false
+	      inputDisplay: false,
+	      name: getNameValue()
 	    };
 	  },
 
 	  componentDidMount: function componentDidMount() {
 	    Store.addChangeListener(this.onChangeSex);
+	    Store.addChangeListener(this.onChangeName);
 	  },
 
 	  componentWillUnmount: function componentWillUnmount() {
 	    Store.removeChangeListener(this.onChangeSex);
+	    Store.removeChangeListener(this.onChangeName);
 	  },
 
 	  onChangeSex: function onChangeSex() {
 	    this.setState({
 	      sex: Store.getSex()
+	    });
+	  },
+
+	  onChangeName: function onChangeName() {
+	    this.setState({
+	      name: getNameValue()
 	    });
 	  },
 
@@ -25350,8 +25360,9 @@
 	    });
 	  },
 
-	  changeName: function changeName(event) {
+	  changeNameValue: function changeNameValue(event) {
 	    event.preventDefault();
+	    changeName.emitChangeName(this.refs.name.getDOMNode().value);
 	    this.setState({
 	      inputDisplay: !this.state.inputDisplay
 	    });
@@ -25369,7 +25380,7 @@
 	        { onClick: this.showEdit, className: styles.name, style: {
 	            display: this.state.inputDisplay ? 'none' : 'block'
 	          } },
-	        getNameValue(),
+	        this.state.name,
 	        ' ',
 	        React.createElement('i', { className: "fa fa-pencil-square-o " + styles.edit })
 	      ),
@@ -25377,8 +25388,8 @@
 	        'form',
 	        { className: styles.inputgroup, style: {
 	            display: isEdit
-	          }, onSubmit: this.changeName },
-	        React.createElement('input', { className: styles.nameinput, type: 'text', defaultValue: getNameValue() }),
+	          }, onSubmit: this.changeNameValue },
+	        React.createElement('input', { className: styles.nameinput, type: 'text', defaultValue: this.state.name, ref: 'name' }),
 	        React.createElement(
 	          'button',
 	          { className: styles.submit, type: 'submit' },
@@ -25651,6 +25662,7 @@
 
 	var Store = __webpack_require__(208);
 	var getSexValue = Store.getSex;
+	var getNameValue = Store.getName;
 
 	var ChatRoom = React.createClass({
 	  displayName: 'ChatRoom',
@@ -25670,12 +25682,14 @@
 
 	        var message = data.message;
 	        var sex = data.sex;
+	        var name = data.name;
 
 	        var messages = that.state.messages;
 	        messages.push({
 	          rs: 'receive',
 	          content: message,
-	          sex: sex
+	          sex: sex,
+	          name: name
 	        });
 
 	        that.setState({
@@ -25695,18 +25709,20 @@
 
 	    var messages = this.state.messages;
 	    var sex = getSexValue() ? '2' : '1';
+	    var name = getNameValue();
 
 	    messages.push({
 	      rs: 'send',
 	      content: message,
-	      sex: sex
+	      sex: sex,
+	      name: name
 	    });
 
 	    this.setState({
 	      messages: messages
 	    }, this.scroll);
 
-	    socket.emit('sendMessage', { message: message, id: nowRoomId, time: this.time, sex: sex });
+	    socket.emit('sendMessage', { message: message, id: nowRoomId, time: this.time, sex: sex, name: name });
 
 	    this.refs.message.getDOMNode().value = '';
 	  },
@@ -25738,7 +25754,7 @@
 	        'ul',
 	        { className: styles.chatlist, ref: 'ul' },
 	        messages.map(function (result, index) {
-	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.sex, key: index });
+	          return React.createElement(MessageItem, { rs: result.rs, content: result.content, avatar: result.sex, name: result.name, key: index });
 	        })
 	      ),
 	      React.createElement(
@@ -25811,6 +25827,8 @@
 	var React = __webpack_require__(1);
 	var styles = __webpack_require__(242);
 
+	var cn = __webpack_require__(246);
+
 	var MessageItem = React.createClass({
 	  displayName: 'MessageItem',
 
@@ -25818,15 +25836,25 @@
 	    var rs = this.props.rs;
 	    var content = this.props.content;
 	    var avatar = this.props.avatar;
+	    var name = this.props.name;
 
 	    return React.createElement(
 	      'li',
-	      { className: styles[rs] },
-	      React.createElement('img', { className: styles.avatar, src: "img/avatar" + avatar + ".svg" }),
+	      { className: cn(styles.li, styles[rs]) },
 	      React.createElement(
-	        'p',
-	        { className: styles.content },
-	        content
+	        'small',
+	        { className: styles.small },
+	        name
+	      ),
+	      React.createElement(
+	        'div',
+	        { className: styles.div },
+	        React.createElement('img', { className: styles.avatar, src: "img/avatar" + avatar + ".svg" }),
+	        React.createElement(
+	          'p',
+	          { className: styles.content },
+	          content
+	        )
 	      )
 	    );
 	  }
@@ -25869,14 +25897,17 @@
 
 
 	// module
-	exports.push([module.id, "._16-k8Xcb21zA5m33eHZLBu {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex; }\n\n._3fI-71l4AqWr_6NIDGJRyd {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: reverse;\n  -webkit-flex-direction: row-reverse;\n      -ms-flex-direction: row-reverse;\n          flex-direction: row-reverse; }\n\n._1e_0XZdHJ3bhBscXN5Okwx {\n  width: 35px;\n  height: 35px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0; }\n\n._3pwXoj9L13GPfKoncM_Kvb {\n  margin: 16px 5px;\n  padding: 10px;\n  border-radius: 6px;\n  word-break: break-word; }\n\n._16-k8Xcb21zA5m33eHZLBu ._3pwXoj9L13GPfKoncM_Kvb {\n  border: 1px solid #ccc; }\n\n._3fI-71l4AqWr_6NIDGJRyd ._3pwXoj9L13GPfKoncM_Kvb {\n  color: #fff;\n  background-color: #18b4ed;\n  border: 1px solid #18b4ed; }\n", ""]);
+	exports.push([module.id, "._2XJQ-JltIK7S3eZv6-ygRI {\n  display: -webkit-box;\n  display: -webkit-flex;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n  -webkit-flex-direction: column;\n      -ms-flex-direction: column;\n          flex-direction: column; }\n\n._16-k8Xcb21zA5m33eHZLBu {\n  -webkit-box-align: start;\n  -webkit-align-items: flex-start;\n      -ms-flex-align: start;\n          align-items: flex-start; }\n  ._16-k8Xcb21zA5m33eHZLBu .EPJijFVKWgxzXnoStmx6_ {\n    display: -webkit-box;\n    display: -webkit-flex;\n    display: -ms-flexbox;\n    display: flex; }\n\n._3fI-71l4AqWr_6NIDGJRyd {\n  -webkit-box-align: end;\n  -webkit-align-items: flex-end;\n      -ms-flex-align: end;\n          align-items: flex-end; }\n  ._3fI-71l4AqWr_6NIDGJRyd .EPJijFVKWgxzXnoStmx6_ {\n    display: -webkit-box;\n    display: -webkit-flex;\n    display: -ms-flexbox;\n    display: flex;\n    -webkit-box-orient: horizontal;\n    -webkit-box-direction: reverse;\n    -webkit-flex-direction: row-reverse;\n        -ms-flex-direction: row-reverse;\n            flex-direction: row-reverse; }\n\n._1e_0XZdHJ3bhBscXN5Okwx {\n  width: 35px;\n  height: 35px;\n  -webkit-flex-shrink: 0;\n      -ms-flex-negative: 0;\n          flex-shrink: 0; }\n\n._3pwXoj9L13GPfKoncM_Kvb {\n  margin: 16px 5px;\n  padding: 10px;\n  border-radius: 6px;\n  word-break: break-word; }\n\n._16-k8Xcb21zA5m33eHZLBu ._3pwXoj9L13GPfKoncM_Kvb {\n  border: 1px solid #ccc; }\n\n._3fI-71l4AqWr_6NIDGJRyd ._3pwXoj9L13GPfKoncM_Kvb {\n  color: #fff;\n  background-color: #18b4ed;\n  border: 1px solid #18b4ed; }\n\n._3ak6oM5b5lMDYjHIZeSKro {\n  font-size: 12px;\n  color: #ccc;\n  margin-bottom: 5px; }\n", ""]);
 
 	// exports
 	exports.locals = {
+		"li": "_2XJQ-JltIK7S3eZv6-ygRI",
 		"receive": "_16-k8Xcb21zA5m33eHZLBu",
+		"div": "EPJijFVKWgxzXnoStmx6_",
 		"send": "_3fI-71l4AqWr_6NIDGJRyd",
 		"avatar": "_1e_0XZdHJ3bhBscXN5Okwx",
-		"content": "_3pwXoj9L13GPfKoncM_Kvb"
+		"content": "_3pwXoj9L13GPfKoncM_Kvb",
+		"small": "_3ak6oM5b5lMDYjHIZeSKro"
 	};
 
 /***/ },
@@ -25899,6 +25930,82 @@
 	};
 
 	module.exports = addRoom;
+
+/***/ },
+/* 245 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	var AppDispatcher = __webpack_require__(209);
+
+	var changeName = {
+	  emitChangeName: function emitChangeName(data) {
+	    var action = {
+	      actionType: "CHANGENAME",
+	      data: data
+	    };
+
+	    AppDispatcher.dispatch(action);
+	  }
+	};
+
+	module.exports = changeName;
+
+/***/ },
+/* 246 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2015 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+
+	(function () {
+		'use strict';
+
+		function classNames () {
+
+			var classes = '';
+
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+
+				var argType = typeof arg;
+
+				if ('string' === argType || 'number' === argType) {
+					classes += ' ' + arg;
+
+				} else if (Array.isArray(arg)) {
+					classes += ' ' + classNames.apply(null, arg);
+
+				} else if ('object' === argType) {
+					for (var key in arg) {
+						if (arg.hasOwnProperty(key) && arg[key]) {
+							classes += ' ' + key;
+						}
+					}
+				}
+			}
+
+			return classes.substr(1);
+		}
+
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true){
+			// AMD. Register as an anonymous module.
+			!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+
+	}());
+
 
 /***/ }
 /******/ ]);
