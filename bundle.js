@@ -23572,7 +23572,8 @@
 	  React.createElement(Route, { path: 'now', handler: NowRoom }),
 	  React.createElement(Route, { path: 'all', handler: AllRoom }),
 	  React.createElement(Route, { path: 'me', handler: Me }),
-	  React.createElement(Route, { path: 'chat', handler: ChatRoom })
+	  React.createElement(Route, { path: 'chat', handler: ChatRoom }),
+	  React.createElement(Route, { path: '/', handler: AllRoom })
 	);
 
 	module.exports = routes;
@@ -23988,7 +23989,8 @@
 	        ({
 	          'now': '我的聊天室',
 	          'all': '所有聊天室',
-	          'me': '个人中心'
+	          'me': '个人中心',
+	          '': '所有聊天室'
 	        })[this.props.title]
 	      ),
 	      React.createElement('i', { className: styles.plus + ' fa fa-plus', onClick: this.showCreateRoomPage })
