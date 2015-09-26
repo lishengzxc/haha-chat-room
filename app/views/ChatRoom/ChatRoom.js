@@ -2,6 +2,7 @@ var React = require('react');
 var styles = require('./ChatRoom.scss');
 
 var MessageItem = require('../MessageItem/MessageItem');
+var Toast = require('../Toast/Toast');
 
 var Store = require('../../stores/stores');
 var getSexValue = Store.getSex;
@@ -38,7 +39,10 @@ var ChatRoom = React.createClass({
           messages: messages
         }, that.scroll);
       }
+    });
 
+    socket.on('enter:' + nowRoomId, function (data) {
+      Toast.show(data.name);
     });
   },
 
